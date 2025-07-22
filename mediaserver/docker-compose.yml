@@ -1,0 +1,116 @@
+services:
+    jellyfin:
+        image: jellyfin/jellyfin
+        container_name: jellyfin
+        privileged: true # required for VAAPI access
+        group_add:
+            - "993"
+        volumes:
+            - ${JELLYFIN_CONFIG_PATH}:/config
+            - ${JELLYFIN_CACHE_PATH}:/cache
+            - ${JELLYFIN_TRANSCODE_PATH}:/cache/transcodes
+            - type: bind
+              source: ${JELLYFIN_MOVIES_PATH}
+              target: /movies
+              read_only: true
+            - type: bind
+              source: ${JELLYFIN_SHOWS_PATH}
+              target: /shows
+              read_only: true
+#            - type: bind
+#              source: /mnt/hdd/MediaLibrary/Media/GuestLibrary
+#              target: /guest
+#              read_only: true
+        devices:
+            - /dev/dri/renderD128:/dev/dri/renderD128 # Pass Intel GPU
+        ports:
+            - "8096:8096/tcp"
+        restart: unless-stopped
+        environment:
+            - JELLYFIN_PublishedServerUrl=${HOSTNAME}/jellyfin
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+        networks:
+            - home-server
+
+    qbittorrent:
+        image: lscr.io/linuxserver/qbittorrent:latest
+        container_name: qbittorrent
+        environment:
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+            - WEBUI_PORT=8080
+            - TORRENTING_PORT=6881
+        volumes:
+            - ${QBITTORRENT_CONFIG_PATH}:/config
+            - ${QBITTORRENT_DOWNLOADS_PATH}:/data/Downloads
+        ports:
+            - 8080:8080
+            - 6881:6881
+            - 6881:6881/udp
+        restart: unless-stopped
+        networks:
+            - home-server
+
+    sonarr:
+        image: lscr.io/linuxserver/sonarr
+        container_name: sonarr
+        environment:
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+        restart: unless-stopped
+        volumes:
+            - ${SONARR_CONFIG_PATH}:/config
+            - ${SONARR_DATA_PATH}:/data
+        ports:
+            - 8989:8989
+        networks:
+            - home-server
+
+    radarr:
+        image: lscr.io/linuxserver/radarr
+        container_name: radarr
+        environment:
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+        restart: unless-stopped
+        volumes:
+            - ${RADARR_CONFIG_PATH}:/config
+            - ${RADARR_DATA_PATH}:/data
+        ports:
+            - 7878:7878
+        networks:
+            - home-server
+
+    prowlarr:
+        image: lscr.io/linuxserver/prowlarr
+        container_name: prowlarr
+        environment:
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+        restart: unless-stopped
+        volumes:
+            - ${PROWLARR_CONFIG_PATH}:/config
+        ports:
+            - 9696:9696
+        networks:
+            - home-server
+
+    jellyseerr:
+        image: fallenbagel/jellyseerr:latest
+        container_name: jellyseerr
+        volumes:
+            - ${JELLYSEERR_CONFIG_PATH}:/app/config
+        environment:
+            - TZ=${TZ}
+        restart: unless-stopped
+        ports:
+            - 5055:5055
+        networks:
+            - home-server
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+networks:
+    home-server:
+        external: true

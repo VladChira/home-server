@@ -1,0 +1,13 @@
+name: portainer
+services:
+    portainer-ce:
+        ports:
+            - 8876:8000
+            - 9443:9443
+        container_name: portainer
+        restart: always
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./data:/data
+        image: portainer/portainer-ce:lts
+        privileged: true

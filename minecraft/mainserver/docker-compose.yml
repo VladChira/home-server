@@ -1,0 +1,15 @@
+services:
+    mainmcserver:
+        container_name: mainmcserver
+        restart: unless-stopped
+        image: itzg/minecraft-server
+        tty: true
+        stdin_open: true
+        ports:
+            - 50321:25565
+        environment:
+            TZ: Europe/Bucharest
+            EULA: "TRUE"
+            MEMORY: 2G
+        volumes:
+            - ./world:/data

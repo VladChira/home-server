@@ -1,0 +1,40 @@
+services:
+    homeassistant:
+        container_name: homeassistant
+        image: "ghcr.io/home-assistant/home-assistant:stable"
+        volumes:
+          - ${HA_CONFIG_PATH}:/config
+          - /etc/localtime:/etc/localtime:ro
+          - /run/dbus:/run/dbus:ro
+        restart: unless-stopped
+        privileged: true
+        network_mode: host
+
+    mqtt:
+        container_name: mosquitto
+        image: eclipse-mosquitto:latest
+        ports:
+          - "1883:1883"
+          - "9001:9001"
+        volumes:
+          - ./mosquitto/config:/mosquitto/config
+          - ./mosquitto/data:/mosquitto/data
+          - ./mosquitto/log:/mosquitto/log
+        restart: unless-stopped
+        environment:
+            - TZ=Europe/Bucharest
+
+    zigbee2mqtt:
+        container_name: zigbee2mqtt
+        image: koenkk/zigbee2mqtt
+        volumes:
+          - ./zigbee2mqtt:/app/data
+          - /run/udev:/run/udev:ro
+        devices:
+          - /dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_9ed54c883414ef11bbec6db8bf9df066-if00-port0:/dev/ttyUSB0
+        restart: unless-stopped
+        depends_on:
+          - mqtt
+        network_mode: host
+        environment:
+            - TZ=Europe/Bucharest

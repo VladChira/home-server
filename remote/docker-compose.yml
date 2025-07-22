@@ -1,0 +1,46 @@
+services:
+    wireguard:
+        image: lscr.io/linuxserver/wireguard:latest
+        container_name: wireguard
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        environment:
+            - PUID=${USER_ID}
+            - PGID=${GROUP_ID}
+            - TZ=${TZ}
+            - SERVERURL=${PUBLIC_HOSTNAME}
+            - SERVERPORT=51820
+            - PEERS=2
+            - PEERDNS=auto
+        volumes:
+          - ${WIREGUARD_CONFIG_PATH}:/config
+          - /lib/modules:/lib/modules #optional
+        ports:
+          - 51820:51820/udp
+        sysctls:
+          - net.ipv4.conf.all.src_valid_mark=1
+        restart: unless-stopped
+        networks:
+          - home-server
+
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        restart: unless-stopped
+        ports:
+            - 443:443
+        volumes:
+            - ${NGINX_CONFIG_PATH}:/etc/nginx/conf.d
+            - /etc/letsencrypt:/etc/letsencrypt
+            - ${NGINX_SCRIPT_PATH}/entrypoint:/entrypoint
+            - /var/log/nginx:/var/log/nginx
+        environment:
+            - TZ=${TZ}
+        entrypoint: ["/bin/sh", "/entrypoint/wait-for-services.sh"]
+        networks:
+            - home-server
+
+networks:
+    home-server:
+        external: true
