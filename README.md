@@ -13,14 +13,14 @@ With what initially started as a simple set of docker-compose files for a few co
    - [Ubuntu Host & KVM VMs](#ubuntu-host--kvm-vms)  
    - [Remote‑Access Stack](#remote-access-stack)  
    - [Media‑Server Stack](#media-server-stack)  
-   - [Monitoring Stack](#monitoring-stack)  
    - [Home Assistant Stack](#home-assistant-stack) 
+   - [Monitoring Stack](#monitoring-stack)  
    - [Minecraft Backup Service](#minecraft-backup-service)   
    - [Portainer & Server Manager](#portainer--server-manager)  
    - [Service Catalog](#service-catalog)
    - [Raspberry Pi](#raspberry-pi-edge) 
 5. [Configuration & Secrets](#configuration--secrets)  
-6. [Backups & DR](#backups--dr)  
+6. [Backups](#backups)  
 7. [Monitoring & Alerts](#monitoring--alerts)  
 8. [The future](#future)
 
@@ -56,19 +56,19 @@ To keep track of the services I have deployed, I also wrote a super simple Softw
 
 ### Ubuntu Host & KVM VMs
 
-### Cockpit
+#### Cockpit
 A truly fantastic tool for managing the host OS is Cockpit. It's a web-based interface for Linux with a bunch of features that I use all the time. It centralizes system info like logs, storage, networking, services, accounts, software updates and more.
 
 Where it really shines for me is in its ``libvirt`` integration. I can use Cockpit to provision Virtual Machines very fast and intuitively. I can assign storage volumes from pools, attach virtual network interfaces, create VM snapshots and so so much more.
 
 ![Cockpit VM](images/cockpit-vm.png)
 
-### VM networking
+#### VM networking
 
 On the topic of VMs, it's worth talking about their network configuration. For my main VM, I attach a TAP device to the bridged physical network adapter, allowing the VM to receive a real IP address on my home network. It can thus access other services without having to pass through the VM NAT. For other VMs, I prefer to use a virtual network with NAT. Cockpit allows me to swap between the interfaces very easily.
 
 
-### VM remote connections
+#### VM remote connections
 Another aspect here is the remote connection. The whole point of the virtual machine was for me to be able to use it from outside my home too. Unfortunately, the remote connection protocol, VNC, is just bad. It's not encrypted, and since it's not HTTPS-based, it forces me to port-forward one port per virtual machine.
 
 Punching holes in my firewall is a fantastically bad idea. Somewhat fortunately, there is a solution: noVNC is an HTML VNC client that connects to a ``websockify`` instance that translates the VNC protocol traffic into websocket traffic. Therefore, after I start a virtual machine, the VNC connection is active, but cannot be accessed until a noVNC/websockify server is also activated. 
@@ -89,16 +89,67 @@ Despite all this, the setup still suffers from lag sometimes. The protocol is ju
 
 
 
-## Remote-Access Stack
+### Remote-Access Stack
 A core philosophy I have for this server is that it's very important to minimize all attack surfaces that appear from allowing remote connections. But I do acknowledge that *some* ways to remotely connect to the server are needed. So here is what I do security-wise:
 
-### SSH with two-factor authentication
+#### SSH with two-factor authentication
 While completely removing password authentication is the correct way to do ssh, I have decided there might be some rare situations where I prefer password + Google Authenticator. It should still be almost as secure as key-only.
 
-### nginx
+#### nginx
 The strict requirement I have for the ingress nginx is no HTTP, under any circumstance. I also have a catch-all statement in the config that completely rejects the SSL handshake if the client does not provide the correct domain name. Connecting via IP only is not possible. SSL certificates are obtained from ``Let's encrypt`` using ``certbot``. DDNS is obtained from my ISP.
 
-### Wireguard
+#### Wireguard
+By design, most services are not exposed to the internet, but sometimes I do want to access them remotely. For that, I use Wireguard. Not much to say here, other that each peer has its own file in the config, so only allowed devices can connect. If I ever need to add another device as a peer, I can use my phone (with the Termius app) to SSH into the server and add it. 
 
-### fail2ban
 
+#### fail2ban
+Having a public active ssh connection on port 22 really gets you a lot of traffic from bots, so fail2ban just monitors for failed connection attempts and temporarily bans their IPs. I can check the banned IPs by running ``sudo fail2ban-client status sshd``.
+
+
+### Media Server Stack
+This stack is made up of 6 containers that manage my media library. The core service is Jellyfin, the media server and player, which mounts a directory structure that contains my movies and TV shows. I also use the *arr suite for media mangement: Radarr for movies, Sonarr for TV shows, Prowlarr as an index manager and Jellyseerr for media requests. The flow for requesting media is as follows:
+
+``Request media from Jellyseerr --> API call to Radarr/Sonarr --> API call to Prowlarr --> API call to indexer and to qBitTorrent client.``
+
+
+#### Directory structure
+A specific directory structure is needed to take advantage of hardlinks and atomic moves. Since everything is a Docker container, we need to mount volumes in such a way that the containers understand they are looking at the same physical drive to allow hardlinks.
+```
+├── MediaLibrary
+│   ├── Downloads
+│   └── Media
+│       ├── Movies
+│       └── Shows
+```
+Radarr and Sonarr mount ``MediaLibrary/``, qBitTorrent mounts ``MediaLibrary/Downloads/``, Jellyfin mounts ``MediaLibrary/Media/Movies/`` and ``MediaLibrary/Media/Shows/``. This way Radarr and Sonarr see both the ``Downloads/`` folder and the ``Media/`` folder and can use hardlinks to avoid storing duplicates of files as they are transferred from ``Downloads/`` to ``Media/``.
+
+#### Jellyfin external access
+Jellyfin can run under a subpath, so nginx proxies the traffic under that subpath to the Jellyfin container.
+
+
+### Home Assistant Stack
+Home Assistant manages my smart lights and sensors and does automations. Wifi lights are easy enough to link to HA. For the Zigbee sensors, I use a USB dongle, then zigbee2mqtt in a container. 
+
+### Monitoring Stack
+
+
+### Minecraft backup service
+
+
+### Portainer & Server Manager
+
+#### Manager API
+
+#### Dashboard
+
+### Service Catalog
+
+#### Local DNS provisioning
+
+### Raspberry Pi
+
+## Configuration & Secrets
+
+## Backups
+
+## Monitoring & Alerts
