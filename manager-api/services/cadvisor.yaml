@@ -1,0 +1,8 @@
+service_name: cAdvisor
+owner: Vlad
+description: Container Advisor collects information about running Docker containers.
+created_at: 2025-07-22
+tags: ["monitoring"]
+ip: 192.168.0.169
+port: 8081
+notes: Runs as a Docker container. Part of the Monitoring stack.

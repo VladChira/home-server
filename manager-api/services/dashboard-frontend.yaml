@@ -1,0 +1,8 @@
+service_name: Dashboard Frontend
+owner: Vlad
+description: React + NextJs + Shadcn dashboard for interacting with the server. Provides easy access to VMs, Minecraft servers and Service Catalog.
+created_at: 2025-07-22
+tags: ["core", "virtual machine", "minecraft", "catalog", "react"]
+ip: 192.168.0.169
+port: 3222
+notes: Runs as a Docker container.

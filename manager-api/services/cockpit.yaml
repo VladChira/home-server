@@ -1,0 +1,8 @@
+service_name: Cockpit
+owner: Vlad
+description: Web-based graphical interface for managing the host OS.
+created_at: 2025-07-22
+tags: ["linux", "admin"]
+ip: 192.168.0.169
+port: 9091
+notes: Runs as a native service on the host OS.

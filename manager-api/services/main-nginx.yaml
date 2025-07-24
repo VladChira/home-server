@@ -1,0 +1,8 @@
+service_name: nginx
+owner: Vlad
+description: Server ingress nginx instance, handles outside traffic, SSL termination and proxying.
+created_at: 2025-07-22
+tags: ["core", "nginx", "ssl"]
+ip: 192.168.0.169
+port: 443
+notes: Runs as a Docker container. Part of the Remote stack.

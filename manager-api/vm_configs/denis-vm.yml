@@ -1,0 +1,4 @@
+name: "denis-ubuntu"
+novnc_port: 6090
+vm_port: 5910
+base_path: denis-vm

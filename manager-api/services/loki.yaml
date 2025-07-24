@@ -1,0 +1,8 @@
+service_name: Grafana Loki
+owner: Vlad
+description: Log aggregation system for different services. Like Prometheus, but for logs.
+created_at: 2025-07-22
+tags: ["monitoring", "grafana", "logs", "observability"]
+ip: 192.168.0.169
+port: 3100
+notes: Runs as a Docker container. Part of the Monitoring stack.
