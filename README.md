@@ -139,6 +139,11 @@ Home Assistant manages my smart lights and sensors and does automations. Wifi li
 ### Portainer & Server Manager
 
 #### Manager API
+The manager API is a service that interacts and centralizes features that I considered essential to be in one place. Particularly, features that I wanted to interact with from outside my home network, but could not justify exposing the entire service for security/privacy reasons. For example, starting/stopping and remote connection to the VMs would be done in Cockpit, but exposing that to the internet is a very bad idea. Instead, the manager API interacts directly with ``libvirt``. 
+
+Another use is to allow other people with appropriate credentials to interact with my server, such as friends turning on/off the Minecraft server whenever they wish.
+
+The API is currently written in Flask, but that is subject to change in the future. I am considering migrating to Spring Boot (for educational purposes only; Flask is absolutely good enough for my use cases, maybe even better for prototyping). 
 
 #### Dashboard
 
