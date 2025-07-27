@@ -1,3 +1,4 @@
+key: loki
 service_name: Grafana Loki
 owner: Vlad
 description: Log aggregation system for different services. Like Prometheus, but for logs.

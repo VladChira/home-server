@@ -1,3 +1,4 @@
+key: mosquitto
 service_name: Eclipse Mosquitto
 owner: Vlad
 description: Message broker for the MQTT protocol. Used together with zigbee2mqtt to link to Home Assistant

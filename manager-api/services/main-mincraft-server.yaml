@@ -1,3 +1,4 @@
+key: main-minecraft-server
 service_name: Main Minecraft Server
 owner: Vlad
 description: The OG Minecraft server. Enough said.

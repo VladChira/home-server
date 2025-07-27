@@ -1,3 +1,4 @@
+key: node-exporter
 service_name: Node Exporter
 owner: Vlad
 description: Host system monitor that publishes metrics scraped by Prometheus.

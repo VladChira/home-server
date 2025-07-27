@@ -1,3 +1,4 @@
+key: wireguard
 service_name: Wireguard
 owner: Vlad
 description: VPN for remote connecting to home server.

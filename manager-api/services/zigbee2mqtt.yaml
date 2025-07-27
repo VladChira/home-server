@@ -1,4 +1,5 @@
-service_name: zigbee2mqtt
+key: zigbee2mqtt
+service_name: Zigbee2MQTT
 owner: Vlad
 description: Converts zigbee protocol to MQTT protocol.
 created_at: 2025-07-22

@@ -1,8 +1,14 @@
+key: home-assistant
 service_name: Home Assistant
 owner: Vlad
-description: Home Assistant is a home automation software. It handles lights, sensors and automations.
+description: Home Assistant is a home automation software. It handles lights, sensors
+  and automations.
 created_at: 2025-07-22
-tags: ["core", "smart home", "home assistant"]
+tags:
+- core
+- smart home
+- home assistant
 ip: 192.168.0.169
 port: 8123
+domain: hass.server.local
 notes: Runs as a Docker container, using host networking.

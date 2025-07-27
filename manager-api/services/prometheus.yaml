@@ -1,8 +1,12 @@
+key: prometheus
 service_name: Prometheus
 owner: Vlad
 description: Monitoring system for metrics.
 created_at: 2025-07-22
-tags: ["monitoring", "observability"]
+tags:
+- monitoring
+- observability
 ip: 192.168.0.169
 port: 9090
+domain: prometheus.server.local
 notes: Runs as a Docker container. Part of the Monitoring stack.

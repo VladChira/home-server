@@ -1,3 +1,4 @@
+key: main-nginx
 service_name: nginx
 owner: Vlad
 description: Server ingress nginx instance, handles outside traffic, SSL termination and proxying.

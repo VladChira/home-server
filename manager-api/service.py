@@ -3,6 +3,7 @@ from typing import List, Optional
 
 @dataclass
 class Service:
+    key: str
     service_name: str
     owner: str
     description: str

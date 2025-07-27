@@ -1,8 +1,15 @@
+key: jellyseerr
 service_name: Jellyseerr
 owner: Vlad
-description: Jellyseerr is a media request tool that integrates with the *arr suite and Jellyfin.
+description: Jellyseerr is a media request tool that integrates with the *arr suite
+  and Jellyfin.
 created_at: 2025-07-22
-tags: ["core", "movies", "media", "jellyfin"]
+tags:
+- core
+- movies
+- media
+- jellyfin
 ip: 192.168.0.169
 port: 5055
+domain: jellyseerr.server.local
 notes: Runs as a Docker container. Part of the Media Server stack.

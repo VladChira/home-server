@@ -1,7 +1,7 @@
+key: promtail
 service_name: Promtail
 owner: Vlad
 description: Agent that tails logs and pushes them to Loki.
 created_at: 2025-07-22
 tags: ["monitoring", "observability"]
-ip: 192.168.0.169
 notes: Runs as a Docker container. Part of the Monitoring stack.

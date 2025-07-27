@@ -4,7 +4,7 @@ import yaml
 import subprocess
 import libvirt
 import requests
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 
 from service import Service
 
@@ -64,14 +64,60 @@ def provision_dns_for_service(name):
     # Call the DNS API on the Raspberry Pi
     response = requests.post(f"{DNS_API_URL}/api/services/dns/provision", json={"domain": domain, "ip": ip, "port": port})
     if response.status_code == 200:
+        # The provisioning was successful, update the catalog
+        path = os.path.join(SERVICE_CATALOG_CONFIG_DIR, f"{name}.yaml")
+        with open(path) as f:
+            svc_dict = yaml.safe_load(f)
+        svc_dict["domain"] = domain
+
+        ordered: dict[str, any] = {}
+        for fld in fields(Service):
+            if fld.name in svc_dict:
+                ordered[fld.name] = svc_dict[fld.name]
+
+        with open(path, "w") as f:
+            yaml.safe_dump(ordered, f, sort_keys=False)
+
         return jsonify({"status": "ok", "domain": domain})
     else:
         return abort(response.status_code, "Something went wrong provisioning your domain name")
 
 
+@app.route("/api/services/<name>/dns/delete", methods=["POST"])
+def delete_dns_for_service(name):
+    svc = load_service(name)
+
+    ip = svc.ip
+    port = svc.port
+
+    if not ip or not port:
+        abort(400, "This service does not have an associated IP or port, cannot provision a domain name")
+
+    # Call the DNS API on the Raspberry Pi
+    response = requests.post(f"{DNS_API_URL}/api/services/dns/delete", json={"ip": ip, "port": port})
+    if response.status_code == 200:
+        # The deletion was successful, update the catalog
+        path = os.path.join(SERVICE_CATALOG_CONFIG_DIR, f"{name}.yaml")
+        with open(path) as f:
+            svc_dict = yaml.safe_load(f)
+        svc_dict.pop('domain', None)
+
+        ordered: dict[str, any] = {}
+        for fld in fields(Service):
+            if fld.name in svc_dict:
+                ordered[fld.name] = svc_dict[fld.name]
+
+        with open(path, "w") as f:
+            yaml.safe_dump(ordered, f, sort_keys=False)
+
+        return jsonify({"status": "ok", "message": "domain has been removed"})
+    else:
+        return abort(response.status_code, "Something went wrong deleting the domain name")
 
 
-# Folder where your YAML configuration files reside.
+
+
+# Folder where YAML configuration files reside
 VM_CONFIG_DIR = os.path.join(os.path.dirname(__file__), "vm_configs")
 
 # Global dictionary to store VMs (keyed by VM name)
@@ -104,11 +150,13 @@ def reload_vms():
 @app.route("/api/vms", methods=["GET"])
 def get_vms():
     """Return the list of VMs (only those defined in the YAML files)."""
+    load_vm_configs()
     return jsonify(list(vms.values()))
 
 @app.route("/api/vms/<vm_name>", methods=["GET"])
 def get_vm(vm_name):
     """Return detailed info for a particular VM."""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -117,6 +165,7 @@ def get_vm(vm_name):
 @app.route("/api/vms/<vm_name>/status", methods=["GET"])
 def get_vm_status(vm_name):
     """Return the current power state of a VM using libvirt."""
+    load_vm_configs()
     if vm_name not in vms:
         return jsonify({"error": "VM not found"}), 404
 
@@ -153,6 +202,7 @@ def get_vm_status(vm_name):
 @app.route("/api/vms/<vm_name>/start", methods=["POST"])
 def start_vm(vm_name):
     """Start the VM using libvirt bindings."""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -171,6 +221,7 @@ def start_vm(vm_name):
 @app.route("/api/vms/<vm_name>/shutdown", methods=["POST"])
 def shutdown_vm(vm_name):
     """Shut down the VM using libvirt bindings."""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -189,6 +240,7 @@ def shutdown_vm(vm_name):
 @app.route("/api/vms/<vm_name>/force-shutdown", methods=["POST"])
 def force_shutdown_vm(vm_name):
     """Forcefully shut down the VM using libvirt bindings."""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -207,6 +259,7 @@ def force_shutdown_vm(vm_name):
 @app.route("/api/vms/<vm_name>/novnc/status", methods=["GET"])
 def get_novnc_status(vm_name):
     """Return the current state of the noVNC server attached to a VM"""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -218,7 +271,7 @@ def get_novnc_status(vm_name):
 @app.route("/api/vms/<vm_name>/novnc/start", methods=["POST"])
 def start_novnc(vm_name):
     """Start the noVNC server for the given VM."""
-    
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404
@@ -244,6 +297,7 @@ def start_novnc(vm_name):
 @app.route("/api/vms/<vm_name>/novnc/stop", methods=["POST"])
 def stop_novnc(vm_name):
     """Stop the noVNC server for the given VM."""
+    load_vm_configs()
     vm = vms.get(vm_name)
     if not vm:
         return jsonify({"error": "VM not found"}), 404

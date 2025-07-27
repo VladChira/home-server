@@ -1,8 +1,9 @@
-service_name: Dashboard Backend
+key: manager-api
+service_name: Manager API
 owner: Vlad
 description: Flask API that handles libvirt VMs, noVNC proxies and the Service Catalog.
 created_at: 2025-07-22
-tags: ["core", "virtual machine", "catalog", "flask", "API", "backend"]
+tags: ["core", "virtual machines", "catalog", "flask", "API", "backend"]
 ip: 192.168.0.169
 port: 5000
 notes: Runs natively as a systemctl service.
