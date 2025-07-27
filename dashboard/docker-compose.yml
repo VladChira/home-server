@@ -1,0 +1,11 @@
+services:
+  c9manager-nextjs:
+    container_name: c9manager-nextjs
+    build: .
+    restart: always
+    ports:
+      - "3222:3222"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NODE_ENV=production
