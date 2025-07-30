@@ -148,12 +148,35 @@ The API is currently written in Flask, but that is subject to change in the futu
 #### Dashboard
 
 ### Service Catalog
+Having so many services deployed on various ports are hard to track. I often found myself forgetting which service is on which port and had to open Portainer or run ``docker ps -a`` to remember. I wanted a way to centralize them in a single place, namely my dashboard. So I wrote a super simple YAML-based service catalog. Each YAML file corresponds to a service and has details about, including ip, port, description, url and more. Then the manager API interacts with these YAML files. I will soon migrate away from a YAML-based storage to an actual MySQL database and use ORM to query it. Again, not because it's better than the YAML files, but for educational purposes. 
 
 #### Local DNS provisioning
+On the subject of forgetting ports, combining the software catalog with local DNS records is an even better solution. For example, remembering ``pihole.server.local`` is way easier than ``192.168.0.170:8080``. 
+And while I do not have enough services to require programatically created DNS records, it was still a fun exercise. Here is how I did it:
 
-### Raspberry Pi
+In pihole I added ``*.server.local`` as a local DNS record pointing to my Raspberry Pi's IP address. Since the web UI does not allow wildcard records, I added it to the dnsmasq config (by bind mounting the config in the container).
+
+Then, I deployed a separate nginx instance on the Raspberry Pi to act as the proxy. The nginx config has server blocks matching domain names to IP:port combo. 
+
+The config is managed by a tiny Flask API with the following routes:
+```
+GET /api/services/dns
+Request body: ip, port
+```
+This route returns the domain name provisioned for a particular IP:port combo in the request body by reading the nginx config. Returns ``404`` if there is no matched IP:port server block. 
+
+```
+POST /api/services/dns
+Request body: ip, port, domain
+```
+This route edits the nginx config by either adding a new server block or using regex to capture an existing server block matching ip:port (if it exists) and editing it with the new dns domain requested.
+
+Analog for ``DELETE /api/services/dns``, no domain needed in the request body. 
+
+This API is called by the manager API, never directly, because that will cause discrepancies between the service catalog and reality. Same thing when it comes to manually editing the nginx config. 
 
 ## Configuration & Secrets
+Secrets like passwords public domain names or keys are stored in .env files that are gitignored. Sample .env are provided. For situations where it's not possible to store .envs, the files themselves are gitignored and sample files are provided.
 
 ## Backups
 
