@@ -1,9 +1,0 @@
-key: main-minecraft-server
-service_name: Main Minecraft Server
-owner: Vlad
-description: The OG Minecraft server. Enough said.
-created_at: 2025-07-22
-tags: ["core", "mincraft"]
-ip: 192.168.0.169
-port: 25565
-notes: Runs as a Docker container. Part of the Monitoring stack.

@@ -2,18 +2,22 @@ package com.home.vlad.servermanager.service.vm;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.home.vlad.servermanager.dto.libvirt.VMStatus;
 import com.home.vlad.servermanager.dto.novnc.NoVncStatus;
 import com.home.vlad.servermanager.exception.vm.VMNotFoundException;
-import com.home.vlad.servermanager.model.vm.VirtualMachine;
+import com.home.vlad.servermanager.model.vm.VirtualMachineEntity;
 import com.home.vlad.servermanager.repository.vm.VirtualMachineRepository;
 import com.home.vlad.servermanager.service.libvirt.LibvirtService;
 import com.home.vlad.servermanager.service.novnc.NoVNCService;
 
 @Service
 public class VirtualMachineService {
+    Logger logger = LoggerFactory.getLogger(VirtualMachineService.class);
+
     private final VirtualMachineRepository repo;
 
     private final LibvirtService libvirtService;
@@ -26,25 +30,27 @@ public class VirtualMachineService {
         this.noVNCService = noVNCService;
     }
 
-    private VirtualMachine ensureVMExists(String name) {
+    private VirtualMachineEntity ensureVMExists(String name) {
         return repo.findByName(name).orElseThrow(() -> new VMNotFoundException(name));
     }
 
-    public VirtualMachine onboard(VirtualMachine vm) {
+    public VirtualMachineEntity onboard(VirtualMachineEntity vm) {
+        logger.info("Onboarding a new VM: " + vm.toString());
         return repo.save(vm);
     }
 
-    public List<VirtualMachine> list() {
+    public List<VirtualMachineEntity> list() {
         return repo.findAll();
     }
 
-    public VirtualMachine findByName(String name) {
+    public VirtualMachineEntity findByName(String name) {
         return repo.findByName(name)
                 .orElseThrow(() -> new VMNotFoundException(name));
     }
 
     public void deleteByName(String name) {
-        VirtualMachine vm = repo.findByName(name)
+        logger.info("Deleting a VM with name: " + name);
+        VirtualMachineEntity vm = repo.findByName(name)
                 .orElseThrow(() -> new VMNotFoundException(name));
         repo.delete(vm);
     }
@@ -55,16 +61,19 @@ public class VirtualMachineService {
     }
 
     public void startVMByName(String name) {
+        logger.info("Starting VM with name: " + name);
         ensureVMExists(name);
         libvirtService.start(name);
     }
 
     public void shutdownVMByName(String name) {
+        logger.info("Shutting down VM with name: " + name);
         ensureVMExists(name);
         libvirtService.shutdown(name);
     }
 
     public void forceShutdownVMByName(String name) {
+        logger.warn("Force shutting down VM with name: " + name);
         ensureVMExists(name);
         libvirtService.forceShutdown(name);
     }
@@ -75,11 +84,13 @@ public class VirtualMachineService {
     }
 
     public void startNoVNC(String name) {
-        VirtualMachine vm = ensureVMExists(name);
+        logger.info("Starting noVNC for VM with name: " + name);
+        VirtualMachineEntity vm = ensureVMExists(name);
         noVNCService.start(name, vm.getVmPort(), vm.getNovncPort());
     }
 
     public void stopNoVNC(String name) {
+        logger.info("Stopping noVNC for VM with name: " + name);
         ensureVMExists(name);
         noVNCService.stop(name);
     }

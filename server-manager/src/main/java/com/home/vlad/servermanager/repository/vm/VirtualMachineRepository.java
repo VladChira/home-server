@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.home.vlad.servermanager.model.vm.VirtualMachine;
+import com.home.vlad.servermanager.model.vm.VirtualMachineEntity;
 
-public interface VirtualMachineRepository extends JpaRepository<VirtualMachine, Long> {
-    Optional<VirtualMachine> findByName(String name);
+public interface VirtualMachineRepository extends JpaRepository<VirtualMachineEntity, Long> {
+    Optional<VirtualMachineEntity> findByName(String name);
 }

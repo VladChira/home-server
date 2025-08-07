@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.home.vlad.servermanager.dto.libvirt.VMStatus;
 import com.home.vlad.servermanager.dto.novnc.NoVncStatus;
-import com.home.vlad.servermanager.model.vm.VirtualMachine;
+import com.home.vlad.servermanager.model.vm.VirtualMachineEntity;
 import com.home.vlad.servermanager.service.vm.VirtualMachineService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,17 +29,17 @@ public class VirtualMachineController {
 
     @GetMapping
     @Operation(summary = "Returns a list of all available onboarded VMs", description = "Returns a list of all available onboarded VMs")
-    public List<VirtualMachine> list() {
+    public List<VirtualMachineEntity> list() {
         return vmService.list();
     }
 
     @GetMapping("/{name}")
-    public VirtualMachine get(@PathVariable String name) {
+    public VirtualMachineEntity get(@PathVariable String name) {
         return vmService.findByName(name);
     }
 
     @PostMapping
-    public VirtualMachine onboard(@RequestBody VirtualMachine vm) {
+    public VirtualMachineEntity onboard(@RequestBody VirtualMachineEntity vm) {
         return vmService.onboard(vm);
     }
 

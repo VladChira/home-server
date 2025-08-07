@@ -1,9 +1,0 @@
-key: node-exporter
-service_name: Node Exporter
-owner: Vlad
-description: Host system monitor that publishes metrics scraped by Prometheus.
-created_at: 2025-07-22
-tags: ["monitoring", "grafana"]
-ip: 192.168.0.169
-port: 9100
-notes: Runs as a Docker container. Part of the Monitoring stack.

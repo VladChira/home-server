@@ -1,8 +1,0 @@
-key: zigbee2mqtt
-service_name: Zigbee2MQTT
-owner: Vlad
-description: Converts zigbee protocol to MQTT protocol.
-created_at: 2025-07-22
-tags: ["home assistant", "mqtt"]
-ip: 192.168.0.169
-notes: Runs as a Docker container. Part of the Home Assistant stack.

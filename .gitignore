@@ -1,1 +1,4 @@
 .vscode
+
+# Stop tracking this because it's deprecated, but keep it locally
+manager-api

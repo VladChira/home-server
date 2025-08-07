@@ -9,12 +9,8 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { toast } from "sonner"
-import {
-  provisionDNSForServiceName,
-  deleteDNSForServiceName,
-  Service,
-} from "@/app/actions/serviceCatalogActions";
 import { Toaster } from "../ui/sonner";
+import { deleteDNSForServiceName, provisionDNSForServiceName, Service } from "@/lib/catalog";
 
 interface ServiceListProp {
   services: Service[];

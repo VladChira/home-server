@@ -1,23 +1,22 @@
-// components/ServerControlSwitch.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import { startServerAction, stopServerAction } from "@/app/actions/minecraftServerActions";
+import { startMinecraftServer, stopMinecraftServer } from "@/lib/minecraft";
 
 interface ServerControlSwitchProps {
-  serverId: string;
+  serverName: string;
   defaultChecked: boolean;
 }
 
-export default function ServerControlSwitch({ serverId, defaultChecked }: ServerControlSwitchProps) {
+export default function ServerControlSwitch({ serverName, defaultChecked }: ServerControlSwitchProps) {
   const router = useRouter();
 
   const handleChange = async (checked: boolean) => {
     if (checked) {
-      await startServerAction(serverId);
+      await startMinecraftServer(serverName);
     } else {
-      await stopServerAction(serverId);
+      await stopMinecraftServer(serverName);
     }
     // Refresh the current route to fetch updated data
     router.refresh();
@@ -25,7 +24,7 @@ export default function ServerControlSwitch({ serverId, defaultChecked }: Server
 
   return (
     <Switch
-      id={serverId}
+      id={serverName}
       defaultChecked={defaultChecked}
       onCheckedChange={handleChange}
     />

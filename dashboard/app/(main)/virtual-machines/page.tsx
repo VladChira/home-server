@@ -22,7 +22,7 @@ import { AlertTriangle, ExternalLink, Terminal } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
-
+const VM_RUNNING_STRING = "VIR_DOMAIN_RUNNING";
 
 const virtualMachines: VirtualMachine[] = [
     {
@@ -105,7 +105,7 @@ export default function VMsPage() {
                                 <TableCell className="text-base font-bold">
                                     <div className="flex items-center gap-2">
                                         <span
-                                            className={`inline-block w-3 h-3 rounded-full ${vm.vnc_status === "running" ? "bg-green-500" : "bg-red-500"
+                                            className={`inline-block w-3 h-3 rounded-full ${vm.vnc_status === VM_RUNNING_STRING ? "bg-green-500" : "bg-red-500"
                                                 }`}
                                         />
                                         <span>{vm.vnc_status}</span>
@@ -113,7 +113,7 @@ export default function VMsPage() {
                                 </TableCell>
                                 <TableCell className="text-base font-medium">
                                     <div className="flex items-center gap-2">
-                                        <VNCSwitch vm={vm} defaultChecked={vm.vnc_status == "running"} />
+                                        <VNCSwitch vm={vm} defaultChecked={vm.vnc_status == VM_RUNNING_STRING} />
                                         <Button asChild className="bg-accent-foreground">
                                             <a
                                                 href={`${VM_URL}/${vm.name}/vnc.html`}
@@ -129,7 +129,7 @@ export default function VMsPage() {
                                 <TableCell className="text-base font-medium">
                                     <div className="flex items-center gap-2">
                                         <span
-                                            className={`inline-block w-3 h-3 rounded-full ${vm.vm_status === "running" ? "bg-green-500" : "bg-red-500"
+                                            className={`inline-block w-3 h-3 rounded-full ${vm.vm_status === VM_RUNNING_STRING ? "bg-green-500" : "bg-red-500"
                                                 }`}
                                         />
                                         <span>{vm.vm_status}</span>

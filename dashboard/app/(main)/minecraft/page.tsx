@@ -1,7 +1,6 @@
-export const dynamic = 'force-dynamic';
+"use client"
 
 import { Button } from "@/components/ui/button";
-import { listMinecraftServers, startServerAction, stopServerAction } from "@/app/actions/minecraftServerActions";
 
 import {
   Table,
@@ -13,44 +12,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import React from "react";
-import { Switch } from "@/components/ui/switch";
+import React, { useEffect, useState } from "react";
 import ServerControlSwitch from "../../../components/minecraft/ServerControlSwitch";
+import { getMinecraftServers, MinecraftServer } from "@/lib/minecraft";
 
-type MinecraftServer = {
-  id: string;
-  name: string;
-  port: number;
-  status: string;
-  details: string;
-};
+export default function ServersPage() {
+  const [error, setError] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [servers, setServers] = useState<MinecraftServer[]>([]);
 
-const servers: MinecraftServer[] = [
-  {
-    id: "4410bda",
-    name: "Survival Server",
-    port: 25565,
-    status: "Online",
-    details: "Welcome to the Survival Server! Explore, build, and survive.",
-  },
-  {
-    id: "47fff35",
-    name: "Creative Server",
-    port: 25566,
-    status: "Offline",
-    details: "This is a Creative mode server with infinite resources.",
-  },
-  {
-    id: "f28f5dd",
-    name: "Modded Server",
-    port: 25567,
-    status: "Online",
-    details: "Heavily modded server with custom items and biomes.",
-  },
-];
-
-export default async function ServersPage() {
-  const servers = await listMinecraftServers();
+  useEffect(() => {
+    const fetchServers = async () => {
+      setIsLoading(true);
+      try {
+        const servers = await getMinecraftServers();
+        setServers(servers);
+      } catch (e: any) {
+        setError(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchServers();
+  }, [])
 
   return (
     <main className="p-1">
@@ -88,7 +72,7 @@ export default async function ServersPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-base font-medium">
-                  <ServerControlSwitch serverId={server.id} defaultChecked={server.status === "running"} />
+                  <ServerControlSwitch serverName={server.name} defaultChecked={server.status === "running"} />
                 </TableCell>
                 <TableCell className="text-base font-medium">
                   <Button className="text-base font-medium">

@@ -1,4 +1,0 @@
-name: "main-endeavouros"
-novnc_port: 6092
-vm_port: 5901
-base_path: main-endeavouros

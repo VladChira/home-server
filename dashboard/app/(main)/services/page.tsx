@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 
-import { getServices, Service } from "@/app/actions/serviceCatalogActions";
 import ServiceCatalog from "@/components/services/ServiceCatalog";
 
 import { Button } from "@/components/ui/button";
+import { getServices } from "@/lib/catalog";
 
 export default async function ServicesPage() {
     const services = await getServices();

@@ -1,9 +1,0 @@
-key: wireguard
-service_name: Wireguard
-owner: Vlad
-description: VPN for remote connecting to home server.
-created_at: 2025-07-22
-tags: ["core", "vpn"]
-ip: 192.168.0.169
-port: 51820
-notes: Runs as a Docker container. Part of the Remote stack. UDP connection only.

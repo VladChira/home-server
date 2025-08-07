@@ -1,4 +1,0 @@
-name: "main-ubuntu"
-novnc_port: 6091
-vm_port: 5900
-base_path: main-ubuntu

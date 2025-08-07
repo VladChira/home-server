@@ -1,8 +1,0 @@
-key: mosquitto
-service_name: Eclipse Mosquitto
-owner: Vlad
-description: Message broker for the MQTT protocol. Used together with zigbee2mqtt to link to Home Assistant
-created_at: 2025-07-22
-tags: ["home assistant", "mqtt"]
-ip: 192.168.0.169
-notes: Runs as a Docker container. Part of the Home Assistant stack.
