@@ -1,3 +1,5 @@
+"use client"
+
 export type VirtualMachine = {
     name: string;
     vnc_status: string,
@@ -8,9 +10,12 @@ export type VirtualMachine = {
 const API_CALL_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 export async function getVMStatus(vmName: string): Promise<string> {
+    const token = localStorage.getItem('accessToken');
     try {
         const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/status`, {
-            method: 'GET',
+            method: 'GET', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
 
         if (!res.ok) {
@@ -27,9 +32,13 @@ export async function getVMStatus(vmName: string): Promise<string> {
 }
 
 export async function getVirtualMachines(): Promise<VirtualMachine[]> {
+    const token = localStorage.getItem('accessToken');
     // Fetch all VM config entries
-    console.log(API_CALL_BASE_URL);
-    const res = await fetch(`${API_CALL_BASE_URL}/vms`, { method: 'GET' });
+    const res = await fetch(`${API_CALL_BASE_URL}/vms`, {
+        method: 'GET', headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    });
 
     if (!res.ok) {
         console.error("Failed to fetch VMs:", res.statusText);
@@ -45,7 +54,9 @@ export async function getVirtualMachines(): Promise<VirtualMachine[]> {
 
             try {
                 const statusRes = await fetch(`${API_CALL_BASE_URL}/vms/${vm.name}/status`, {
-                    method: 'GET'
+                    method: 'GET', headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
                 });
 
                 if (statusRes.ok) {
@@ -61,7 +72,9 @@ export async function getVirtualMachines(): Promise<VirtualMachine[]> {
             let vncStatus = 'unknown'
             try {
                 const statusRes = await fetch(`${API_CALL_BASE_URL}/vms/${vm.name}/novnc/status`, {
-                    method: 'GET'
+                    method: 'GET', headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
                 });
 
                 if (statusRes.ok) {
@@ -86,8 +99,13 @@ export async function getVirtualMachines(): Promise<VirtualMachine[]> {
 }
 
 export async function startVirtualMachine(vmName: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
-        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/start`, { method: 'POST' });
+        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/start`, {
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
 
         if (!res.ok) {
             const error = await res.json();
@@ -109,8 +127,13 @@ export async function startVirtualMachine(vmName: string): Promise<{ success: bo
 }
 
 export async function shutdownVirtualMachine(vmName: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
-        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/shutdown`, { method: 'POST' });
+        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/shutdown`, {
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
 
         if (!res.ok) {
             const error = await res.json();
@@ -133,8 +156,13 @@ export async function shutdownVirtualMachine(vmName: string): Promise<{ success:
 }
 
 export async function forceShutdownVirtualMachine(vmName: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
-        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/force-shutdown`, { method: 'POST' });
+        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/force-shutdown`, {
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
 
         if (!res.ok) {
             const error = await res.json();
@@ -157,8 +185,13 @@ export async function forceShutdownVirtualMachine(vmName: string): Promise<{ suc
 }
 
 export async function startVNCServer(vmName: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
-        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/novnc/start`, { method: 'POST' });
+        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/novnc/start`, {
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
 
         if (!res.ok) {
             const error = await res.json();
@@ -181,8 +214,13 @@ export async function startVNCServer(vmName: string): Promise<{ success: boolean
 }
 
 export async function stopVNCServer(vmName: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
-        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/novnc/stop`, { method: 'POST' });
+        const res = await fetch(`${API_CALL_BASE_URL}/vms/${vmName}/novnc/stop`, {
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
 
         if (!res.ok) {
             const error = await res.json();

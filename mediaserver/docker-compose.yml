@@ -17,6 +17,10 @@ services:
               source: ${JELLYFIN_SHOWS_PATH}
               target: /shows
               read_only: true
+            - type: bind
+              source: ${JELLYFIN_ALEX_PATH}
+              target: /alex
+              read_only: true
 #            - type: bind
 #              source: /mnt/hdd/MediaLibrary/Media/GuestLibrary
 #              target: /guest

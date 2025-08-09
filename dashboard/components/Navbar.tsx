@@ -14,7 +14,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { logout } from "@/app/(auth)/auth/actions";
 
 
 const Navbar = () => {
@@ -38,9 +37,9 @@ const Navbar = () => {
                             <Link href="/profile">Profile</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
-                            <Link onClick={() => logout()} href="#">
+                            {/* <Link onClick={() => logout()} href="#">
                                 Logout
-                            </Link>
+                            </Link> */}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

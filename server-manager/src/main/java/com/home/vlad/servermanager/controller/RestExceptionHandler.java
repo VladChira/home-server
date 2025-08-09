@@ -32,9 +32,4 @@ public class RestExceptionHandler {
     public ResponseEntity<?> handleNoVNCNotRunning(NoVNCNotRunningException ex) {
         return ResponseEntity.status(400).body(Map.of("error", ex.getMessage()));
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleAll(Exception ex) {
-        return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
-    }
 }

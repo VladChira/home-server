@@ -1,3 +1,5 @@
+"use client"
+
 export type MinecraftServer = {
     name: string,
     id: string,
@@ -7,9 +9,13 @@ export type MinecraftServer = {
 const API_CALL_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 export async function getMinecraftServers(): Promise<MinecraftServer[]> {
+    const token = localStorage.getItem('accessToken');
     try {
         const res = await fetch(`${API_CALL_BASE_URL}/minecraft`, {
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
 
         if (!res.ok) {
@@ -26,9 +32,13 @@ export async function getMinecraftServers(): Promise<MinecraftServer[]> {
 }
 
 export async function startMinecraftServer(server_name: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
         const res = await fetch(`${API_CALL_BASE_URL}/minecraft/${server_name}/start`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
 
         if (!res.ok) {
@@ -54,9 +64,13 @@ export async function startMinecraftServer(server_name: string): Promise<{ succe
 }
 
 export async function stopMinecraftServer(server_name: string): Promise<{ success: boolean; message: string }> {
+    const token = localStorage.getItem('accessToken');
     try {
         const res = await fetch(`${API_CALL_BASE_URL}/minecraft/${server_name}/stop`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
 
         if (!res.ok) {
