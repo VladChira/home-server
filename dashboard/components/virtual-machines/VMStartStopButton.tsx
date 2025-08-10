@@ -1,100 +1,46 @@
 'use client';
 
-import { useTransition, useState } from 'react';
-import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation';
 import {
     getVMStatus,
     shutdownVirtualMachine,
     startVirtualMachine,
     VirtualMachine
 } from '@/lib/vm';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
 
 interface VMProps {
     vm: VirtualMachine;
 }
 
 export default function VMStartStopButton({ vm }: VMProps) {
-    const [action, setAction] = useState<'starting' | 'stopping' | null>(null);
-    const [vmStatus, setVmStatus] = useState(vm.vm_status);
-    const [isPending, startTransition] = useTransition();
-    const router = useRouter();
 
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+    const qc = useQueryClient();
 
-    // Poll until status !== initialStatus, or maxTries exhausted
-    const pollVmStatus = async (initialStatus: string) => {
-        const maxTries = 10;
-        for (let i = 0; i < maxTries; i++) {
-            try {
-                const status = await getVMStatus(vm.name);
-                console.log('Polled status:', status);
-                setVmStatus(status);
+    const running = vm.vm_status === "VIR_DOMAIN_RUNNING";
 
-                if (status !== initialStatus) {
-                    break;
-                }
-            } catch (e) {
-                console.error('Error polling VM status:', e);
-                break;
-            }
-            await delay(2000);
-        }
+    const toggle = useMutation({
+        mutationFn: async () => {
+            return running ? shutdownVirtualMachine(vm.name) : startVirtualMachine(vm.name);
+        },
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['vms'], refetchType: 'active' });
+        },
+    });
 
-        setAction(null);
-        // once done, re-fetch data on the page
-        startTransition(() => {
-            router.refresh();
-        });
-    };
-
-    const handleStartStop = async () => {
-        const initial = vmStatus;
-
-        if (initial === 'VIR_DOMAIN_RUNNING') {
-            // stop
-            setAction('stopping');
-            try {
-                const res = await shutdownVirtualMachine(vm.name);
-                console.log('Shutdown API:', res.message);
-            } catch (e) {
-                console.error('Shutdown failed:', e);
-                setAction(null);
-                return;
-            }
-        } else {
-            // start
-            setAction('starting');
-            try {
-                const res = await startVirtualMachine(vm.name);
-                console.log('Start API:', res.message);
-            } catch (e) {
-                console.error('Start failed:', e);
-                setAction(null);
-                return;
-            }
-        }
-
-        // in either case, begin polling
-        pollVmStatus(initial);
-    };
-
-    // Determine label + disabled state
-    const isActing = action !== null;
-    let label: string;
-    if (isActing) {
-        label = action === 'stopping' ? 'Shutting down...' : 'Starting...';
-    } else {
-        label =
-            vmStatus === 'VIR_DOMAIN_RUNNING'
-                ? 'Shut down'
-                : 'Start';
-    }
+    const label = toggle.isPending
+        ? running
+            ? 'Shutting down...'
+            : 'Starting...'
+        : running
+            ? 'Shut down'
+            : 'Start';
 
     return (
         <Button
-            onClick={handleStartStop}
-            disabled={isPending || isActing}
+            onClick={() => toggle.mutate()}
+            disabled={toggle.isPending}
             className="font-bold"
         >
             {label}

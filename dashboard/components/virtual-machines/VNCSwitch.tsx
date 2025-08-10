@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { startVNCServer, stopVNCServer, VirtualMachine } from "@/lib/vm";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface VNCSwitchProps {
   vm: VirtualMachine;
@@ -10,23 +11,24 @@ interface VNCSwitchProps {
 }
 
 export default function VNCSwitch({ vm, defaultChecked }: VNCSwitchProps) {
-  const router = useRouter();
+  const qc = useQueryClient();
 
-  const handleChange = async (checked: boolean) => {
-    if (checked) {
-      await startVNCServer(vm.name);
-    } else {
-      await stopVNCServer(vm.name);
-    }
-    // Refresh the current route to fetch updated data
-    router.refresh();
-  };
+  const toggle = useMutation({
+    mutationFn: async (checked: boolean) => {
+      console.log(checked)
+      return checked ? startVNCServer(vm.name) : stopVNCServer(vm.name);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['vms'], refetchType: 'active' });
+    },
+  });
 
   return (
     <Switch
       id={vm.name}
+      disabled={toggle.isPending}
       defaultChecked={defaultChecked}
-      onCheckedChange={handleChange}
+      onCheckedChange={(checked) => toggle.mutate(checked)}
     />
   );
 }

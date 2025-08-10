@@ -35,7 +35,7 @@ export default function VMForceShutdownButton({ vm }: VMProps) {
 
     const handleForceShutdown = () => {
         startTransition(async () => {
-            if (vm.vm_status === 'running') {
+            if (vm.vm_status === 'VIR_DOMAIN_RUNNING') {
                 setIsShuttingDown(true);
                 const res = await forceShutdownVirtualMachine(vm.name);
                 setResult(res.message);

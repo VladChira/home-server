@@ -1,5 +1,4 @@
 "use client"
-export const dynamic = 'force-dynamic';
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -17,10 +16,8 @@ import {
 import VMForceShutdownButton from "@/components/virtual-machines/VMForceShutdown";
 import VMStartStopButton from "@/components/virtual-machines/VMStartStopButton";
 import VNCSwitch from "@/components/virtual-machines/VNCSwitch";
-import { getVirtualMachines, VirtualMachine } from "@/lib/vm";
+import { useVMs, VirtualMachine } from "@/lib/vm";
 import { AlertTriangle, ExternalLink, Terminal } from "lucide-react";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const VM_RUNNING_STRING = "VIR_DOMAIN_RUNNING";
 
@@ -28,19 +25,19 @@ const virtualMachines: VirtualMachine[] = [
     {
         name: "denis-vm",
         vnc_status: "stopped",
-        vm_status: "running",
+        vm_status: "VIR_DOMAIN_RUNNING",
         base_path: "denis"
     },
     {
         name: "main-ubuntu",
         vnc_status: "stopped",
-        vm_status: "stopped",
+        vm_status: "VIR_DOMAIN_SHUTOFF",
         base_path: "main-ubuntu"
     },
     {
         name: "windows-vm",
         vnc_status: "stopped",
-        vm_status: "running",
+        vm_status: "VIR_DOMAIN_RUNNING",
         base_path: "windows-vm"
     },
 ];
@@ -48,24 +45,9 @@ const virtualMachines: VirtualMachine[] = [
 const VM_URL = process.env.NEXT_PUBLIC_VM_URL;
 
 export default function VMsPage() {
-    const [error, setError] = useState();
-    const [isLoading, setIsLoading] = useState(false);
-    const [vms, setVMs] = useState<VirtualMachine[]>([]);
-
-    useEffect(() => {
-        const fetchVMs = async () => {
-            setIsLoading(true);
-            try {
-                const vms = await getVirtualMachines();
-                setVMs(vms);
-            } catch (e: any) {
-                setError(e);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchVMs();
-    }, [])
+    const { data: vms = [], isLoading, error } = useVMs();
+    if (isLoading) return <p>Loading…</p>;
+    if (error) return <p>Failed to load VMs</p>;
 
     if (isLoading)
         return <div>Loading...</div>
@@ -105,7 +87,7 @@ export default function VMsPage() {
                                 <TableCell className="text-base font-bold">
                                     <div className="flex items-center gap-2">
                                         <span
-                                            className={`inline-block w-3 h-3 rounded-full ${vm.vnc_status === VM_RUNNING_STRING ? "bg-green-500" : "bg-red-500"
+                                            className={`inline-block w-3 h-3 rounded-full ${vm.vnc_status === "running" ? "bg-green-500" : "bg-red-500"
                                                 }`}
                                         />
                                         <span>{vm.vnc_status}</span>
@@ -113,7 +95,7 @@ export default function VMsPage() {
                                 </TableCell>
                                 <TableCell className="text-base font-medium">
                                     <div className="flex items-center gap-2">
-                                        <VNCSwitch vm={vm} defaultChecked={vm.vnc_status == VM_RUNNING_STRING} />
+                                        <VNCSwitch vm={vm} defaultChecked={vm.vnc_status == "running"} />
                                         <Button asChild className="bg-accent-foreground">
                                             <a
                                                 href={`${VM_URL}/${vm.name}/vnc.html`}
@@ -138,9 +120,9 @@ export default function VMsPage() {
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <VMStartStopButton vm={vm} />
-                                        {vm.vm_status === 'running' && (
+                                        {/* {vm.vm_status === 'VIR_DOMAIN_RUNNING' && (
                                             <VMForceShutdownButton vm={vm} />
-                                        )}
+                                        )} */}
                                     </div>
                                 </TableCell>
                             </TableRow>
