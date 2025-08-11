@@ -1,5 +1,7 @@
 'use client';
 
+import { useQuery } from "@tanstack/react-query";
+
 export interface Service {
     key: string;
     service_name: string;
@@ -69,4 +71,12 @@ export async function deleteDNSForServiceName(service_name: string) {
             errBody.error || `Deleting DNS domain failed: ${res.status} ${res.statusText}`
         )
     }
+}
+
+export function useCatalogServices() {
+    return useQuery<Service[]>({
+        queryKey: ['services'],
+        queryFn: getServices,
+        refetchOnWindowFocus: true
+    });
 }

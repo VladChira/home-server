@@ -11,6 +11,7 @@ import { Input } from "../ui/input";
 import { toast } from "sonner"
 import { Toaster } from "../ui/sonner";
 import { deleteDNSForServiceName, provisionDNSForServiceName, Service } from "@/lib/catalog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ServiceListProp {
   services: Service[];
@@ -27,8 +28,28 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
     }
   }, [selectedServiceForDNS]);
 
+  const qc = useQueryClient();
+
+  const provisionMutation = useMutation({
+    mutationFn: async ({ service, domain }: { service: string; domain: string }) => {
+      return provisionDNSForServiceName(service, domain)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['services'], refetchType: 'active' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ service }: { service: string }) => {
+      return deleteDNSForServiceName(service)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['services'], refetchType: 'active' });
+    },
+  });
+
   return (
-    <>  
+    <>
       <Toaster position="top-right" />
       <main className="space-y-4 pb-6 px-6">
         {services.map((svc) => (
@@ -103,8 +124,8 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
                         {value === undefined || value === null || (Array.isArray(value) && value.length === 0)
                           ? 'N/A'
                           : Array.isArray(value)
-                          ? value.join(', ')
-                          : value.toString()}
+                            ? value.join(', ')
+                            : value.toString()}
                       </span>
                     </li>
                   ))}
@@ -150,7 +171,7 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
               <Button
                 onClick={async () => {
                   try {
-                    await provisionDNSForServiceName(selectedServiceForDNS!.key, draftDomain);
+                    provisionMutation.mutate({ service: selectedServiceForDNS!.key, domain: draftDomain });
                     toast.success('Domain configured');
                   } catch (err: any) {
                     toast.error(err.message || 'Failed to configure domain');
@@ -165,7 +186,7 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
                 variant="destructive"
                 onClick={async () => {
                   try {
-                    await deleteDNSForServiceName(selectedServiceForDNS!.key);
+                    deleteMutation.mutate({ service: selectedServiceForDNS!.key });
                     toast.success('Domain removed');
                   } catch (err: any) {
                     toast.error(err.message || 'Failed to remove domain');

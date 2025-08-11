@@ -12,29 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import React, { useEffect, useState } from "react";
 import ServerControlSwitch from "../../../components/minecraft/ServerControlSwitch";
-import { getMinecraftServers, MinecraftServer } from "@/lib/minecraft";
+import { getMinecraftServers, MinecraftServer, useMinecraftServers } from "@/lib/minecraft";
 
 export default function ServersPage() {
-  const [error, setError] = useState();
-  const [isLoading, setIsLoading] = useState(false);
-  const [servers, setServers] = useState<MinecraftServer[]>([]);
+  const { data: servers = [], isLoading, error } = useMinecraftServers();
 
-  useEffect(() => {
-    const fetchServers = async () => {
-      setIsLoading(true);
-      try {
-        const servers = await getMinecraftServers();
-        setServers(servers);
-      } catch (e: any) {
-        setError(e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchServers();
-  }, [])
+  if (isLoading) return <p>Loading…</p>;
+  if (error) return <p>Failed to load Minecraft servers</p>;
 
   return (
     <main className="p-1">

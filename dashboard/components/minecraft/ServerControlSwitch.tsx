@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { startMinecraftServer, stopMinecraftServer } from "@/lib/minecraft";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ServerControlSwitchProps {
   serverName: string;
@@ -10,23 +10,23 @@ interface ServerControlSwitchProps {
 }
 
 export default function ServerControlSwitch({ serverName, defaultChecked }: ServerControlSwitchProps) {
-  const router = useRouter();
 
-  const handleChange = async (checked: boolean) => {
-    if (checked) {
-      await startMinecraftServer(serverName);
-    } else {
-      await stopMinecraftServer(serverName);
-    }
-    // Refresh the current route to fetch updated data
-    router.refresh();
-  };
+  const qc = useQueryClient();
+
+  const toggle = useMutation({
+    mutationFn: async (checked: boolean) => {
+      return checked ? startMinecraftServer(serverName) : stopMinecraftServer(serverName);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['minecraft'], refetchType: 'active' });
+    },
+  });
 
   return (
     <Switch
       id={serverName}
       defaultChecked={defaultChecked}
-      onCheckedChange={handleChange}
+      onCheckedChange={(checked) => toggle.mutate(checked)}
     />
   );
 }

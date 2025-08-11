@@ -15,7 +15,6 @@ export default function VNCSwitch({ vm, defaultChecked }: VNCSwitchProps) {
 
   const toggle = useMutation({
     mutationFn: async (checked: boolean) => {
-      console.log(checked)
       return checked ? startVNCServer(vm.name) : stopVNCServer(vm.name);
     },
     onSuccess: () => {

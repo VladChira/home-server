@@ -3,28 +3,13 @@
 import ServiceCatalog from "@/components/services/ServiceCatalog";
 
 import { Button } from "@/components/ui/button";
-import { getServices, Service } from "@/lib/catalog";
+import { getServices, Service, useCatalogServices } from "@/lib/catalog";
 import { useState, useEffect } from "react";
 
 export default function ServicesPage() {
-    const [error, setError] = useState();
-    const [isLoading, setIsLoading] = useState(false);
-    const [services, setServices] = useState<Service[]>([]);
-
-    useEffect(() => {
-        const fetchServices = async () => {
-            setIsLoading(true);
-            try {
-                const services = await getServices();
-                setServices(services);
-            } catch (e: any) {
-                setError(e);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchServices();
-    }, [])
+    const { data: services = [], isLoading, error } = useCatalogServices();
+    if (isLoading) return <p>Loading…</p>;
+    if (error) return <p>Failed to load VMs</p>;
     return (
         <>
             <div className="flex items-center justify-between pr-6 pt-2">

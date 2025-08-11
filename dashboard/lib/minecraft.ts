@@ -1,5 +1,7 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query";
+
 export type MinecraftServer = {
     name: string,
     id: string,
@@ -93,4 +95,12 @@ export async function stopMinecraftServer(server_name: string): Promise<{ succes
             message: `Server failed to stop`,
         };
     }
+}
+
+export function useMinecraftServers() {
+    return useQuery<MinecraftServer[]>({
+        queryKey: ['minecraft'],
+        queryFn: getMinecraftServers,
+        refetchOnWindowFocus: true
+    });
 }

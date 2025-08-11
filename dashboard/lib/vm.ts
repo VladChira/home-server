@@ -215,7 +215,6 @@ export function useVMs() {
     return useQuery<VirtualMachine[]>({
         queryKey: ['vms'],
         queryFn: getVirtualMachines,
-        refetchOnWindowFocus: true,
-        staleTime: 0,
+        refetchOnWindowFocus: true
     });
 }
