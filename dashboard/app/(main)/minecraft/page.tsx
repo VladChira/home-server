@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import ServerControlSwitch from "../../../components/minecraft/ServerControlSwitch";
-import { getMinecraftServers, MinecraftServer, useMinecraftServers } from "@/lib/minecraft";
+import { useMinecraftServers } from "@/lib/minecraft";
 
 export default function ServersPage() {
   const { data: servers = [], isLoading, error } = useMinecraftServers();
@@ -30,10 +30,8 @@ export default function ServersPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="font-medium text-xl">Name</TableHead>
-              <TableHead className="font-medium text-xl">Port</TableHead>
               <TableHead className="font-medium text-xl">Status</TableHead>
               <TableHead className="font-medium text-xl">Start/Stop</TableHead>
-              <TableHead className="font-medium text-xl">Backup</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -46,7 +44,6 @@ export default function ServersPage() {
                     <span className="text-muted-foreground">{server.id}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-base font-medium">N/A</TableCell>
                 <TableCell className="text-base font-bold">
                   <div className="flex items-center gap-2">
                     <span
@@ -60,9 +57,6 @@ export default function ServersPage() {
                   <ServerControlSwitch serverName={server.name} defaultChecked={server.status === "running"} />
                 </TableCell>
                 <TableCell className="text-base font-medium">
-                  <Button className="text-base font-medium">
-                    Download
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}

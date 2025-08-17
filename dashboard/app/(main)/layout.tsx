@@ -25,7 +25,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                     {children}
                 </div>
             </SidebarInset>
-            <div className="absolute bottom-5 right-0 text-white">
+            <div className="fixed bottom-5 right-5 z-50 pointer-events-none">
                 <ThemeToggle />
             </div>
         </SidebarProvider>

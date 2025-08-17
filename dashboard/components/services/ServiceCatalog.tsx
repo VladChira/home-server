@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { Toaster } from "../ui/sonner";
 import { deleteDNSForServiceName, provisionDNSForServiceName, Service } from "@/lib/catalog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
 interface ServiceListProp {
   services: Service[];
@@ -59,20 +60,6 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
                 <span>{svc.service_name}</span>
               </CardTitle>
               <CardDescription>{svc.description}</CardDescription>
-
-              {/* Domain display + access button */}
-              {svc.domain && (
-                <div className="mt-2 flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">
-                    http://{svc.domain}
-                  </span>
-                  <Button size="icon" variant="ghost" asChild aria-label={`Open ${svc.domain}`}>
-                    <a href={`http://${svc.domain}`} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </div>
-              )}
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -84,6 +71,14 @@ const ServiceCatalog = ({ services }: ServiceListProp) => {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
+              {svc.domain && (
+                <Button size="sm" variant="outline" asChild>
+                  <a href={`http://${svc.domain}`} target="_blank" rel="noopener noreferrer">
+                    Open in new tab
+                    <ExternalLink />
+                  </a>
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"

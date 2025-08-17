@@ -3,7 +3,6 @@ package com.home.vlad.servermanager.service.catalog;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,7 +23,6 @@ public class CatalogService {
 
     private final WebClient webClient;
 
-    @Autowired
     public CatalogService(ServiceRepository repository) {
         this.serviceRepository = repository;
         this.webClient = WebClient.builder()

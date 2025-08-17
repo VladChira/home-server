@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.home.vlad</groupId>
 	<artifactId>servermanager</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>servermanager</name>
 	<description>Home Server Manager</description>
 	<url/>

@@ -16,31 +16,23 @@ export function ThemeToggle() {
   const { setTheme } = useTheme()
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="lg"
-          className="relative border border-gray-700 dark:border-gray-300 dark:bg-sidebar-background mr-5 p-2"
+          className="pointer-events-auto border border-gray-700 dark:border-gray-300 dark:bg-sidebar-background p-2"
         >
           <Sun className="h-[1.2rem] w-[1.2rem] text-black dark:text-white rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] text-black dark:text-white rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-
           <span className="sr-only">Toggle theme</span>
         </Button>
-
-
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
+
+      <DropdownMenuContent align="end" sideOffset={8} className="z-50">
+        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
