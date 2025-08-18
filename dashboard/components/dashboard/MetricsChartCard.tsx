@@ -29,9 +29,10 @@ type MemoryUsageCardProps = {
   data: MemoryPoint[];
   title: string;
   description: string;
+  domain: number[]
 };
 
-export function MetricsChartCard({ data, title, description }: MemoryUsageCardProps) {
+export function MetricsChartCard({ data, title, description, domain }: MemoryUsageCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -62,6 +63,7 @@ export function MetricsChartCard({ data, title, description }: MemoryUsageCardPr
               axisLine={false}
               tickMargin={8}
               tickCount={3}
+              domain={domain}
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <defs>

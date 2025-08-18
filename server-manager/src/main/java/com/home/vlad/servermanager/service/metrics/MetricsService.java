@@ -15,8 +15,8 @@ public class MetricsService {
     private static final String PROMETHEUS_BASE_URL = "http://192.168.0.169:9090";
 
     // PromQL (tuned for typical node_exporter semantics)
-    // RAM % used (per instance): 100 * (1 - MemAvailable / MemTotal)
-    private static final String Q_RAM_USED_PCT = "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))";
+    // RAM GB used (per instance)
+    private static final String Q_RAM_USED_GB = "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) * 1e-9";
 
     // CPU % used across cores (per instance): 100 * (1 - avg by (instance)
     // rate(idle[1m]))
@@ -42,7 +42,7 @@ public class MetricsService {
     public JsonNode ramUsagePercentSince(long sinceSeconds, long stepSeconds) {
         long now = Instant.now().getEpochSecond();
         long start = now - sinceSeconds;
-        return rangeQuery(Q_RAM_USED_PCT, start, now, stepSeconds);
+        return rangeQuery(Q_RAM_USED_GB, start, now, stepSeconds);
     }
 
     public JsonNode cpuUsagePercentSince(long sinceSeconds, long stepSeconds) {

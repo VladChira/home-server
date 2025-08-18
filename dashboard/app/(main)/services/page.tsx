@@ -33,7 +33,7 @@ export default function ServicesPage() {
                         <DialogDescription>Fill in the details of the new service.</DialogDescription>
                     </DialogHeader>
 
-                    <ServiceOnboardForm />
+                    <ServiceOnboardForm onSuccess={() => setOnboardDomain(false)}/>
                 </DialogContent>
             </Dialog>
         </>

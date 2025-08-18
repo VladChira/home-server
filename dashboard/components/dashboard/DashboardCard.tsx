@@ -19,9 +19,9 @@ export default function DashboardCard() {
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 
           <div className="flex gap-4">
-            <div className="w-1/3"><MetricsChartCard data={ramData} title="Server RAM usage" description="RAM usage over the past 12 hours" /></div>
-            <div className="w-1/3"><MetricsChartCard data={cpuData} title="Server CPU usage" description="CPU usage over the past 12 hours" /></div>
-            <div className="w-1/3"><MetricsChartCard data={tempData} title="Server CPU temperature" description="CPU temperature (C°) over the past 12 hours" /></div>
+            <div className="w-1/3"><MetricsChartCard data={ramData} title="Server RAM usage" description="RAM usage (GB) over the past 12 hours" domain={[0, 32]} /></div>
+            <div className="w-1/3"><MetricsChartCard data={cpuData} title="Server CPU usage" description="CPU usage (% of all cores) over the past 12 hours" domain={[0, 100]}/></div>
+            <div className="w-1/3"><MetricsChartCard data={tempData} title="Server CPU temperature" description="CPU temperature (C°) over the past 12 hours" domain={[0, 80]} /></div>
           </div>
         </div>
       </div>

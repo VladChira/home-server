@@ -23,40 +23,37 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 public class ServiceEntity {
 
-    @Id
-    @Column(name = "`service_key`", length = 255)
-    private String key;
+  @Id
+  @Column(name = "`service_key`", length = 255)
+  private String key;
 
-     @JsonProperty("service_name")
-    @Column(name = "service_name", nullable = false, length = 255)
-    private String serviceName;
+  @JsonProperty("service_name")
+  @Column(name = "service_name", nullable = false, length = 255)
+  private String serviceName;
 
-    @Column(nullable = false, length = 255)
-    private String owner;
+  @Column(nullable = false, length = 255)
+  private String owner;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;
+  @Column(nullable = false, columnDefinition = "TEXT")
+  private String description;
 
-    @JsonProperty("created_at")
-    @Column(name = "created_at", nullable = false, length = 255)
-    private String createdAt;
+  @JsonProperty("created_at")
+  @Column(name = "created_at", nullable = false, length = 255)
+  private String createdAt;
 
-    @ElementCollection
-    @CollectionTable(
-      name = "service_tags",
-      joinColumns = @JoinColumn(name = "service_key")
-    )
-    @Column(name = "tag", length = 100)
-    private List<String> tags;
+  @ElementCollection
+  @CollectionTable(name = "service_tags", joinColumns = @JoinColumn(name = "service_key"))
+  @Column(name = "tag", length = 100)
+  private List<String> tags;
 
-    @Column(length = 45)
-    private String ip;
+  @Column(length = 45)
+  private String ip;
 
-    private Integer port;
+  private Integer port;
 
-    @Column(length = 255)
-    private String domain;
+  @Column(length = 255)
+  private String domain;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
+  @Column(columnDefinition = "TEXT")
+  private String notes;
 }
