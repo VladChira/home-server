@@ -21,8 +21,7 @@ With what initially started as a simple set of docker-compose files for a few co
    - [Raspberry Pi](#raspberry-pi-edge) 
 5. [Configuration & Secrets](#configuration--secrets)  
 6. [Backups](#backups)  
-7. [Monitoring & Alerts](#monitoring--alerts)  
-8. [The future](#future)
+7. [The future](#the--future)
 
 
 ## Overview
@@ -48,7 +47,7 @@ On top of Ubuntu Server, I run two types of virtualizations: ``Kernel-based Virt
 
 The docker containers are "informally" organized in stacks. I've tried to deploy all services pertaining to a larger category in a single ``docker-compose.yaml`` file, but I wish I used a better abstraction (see Portainer section below).
 
-A Manager API tries to centralize all indirect interactions between services (i.e. situations where the user must intervene in the interaction), and a NextJS dashboard exposes these interactions in a single place. 
+The Manager API tries to centralize all indirect interactions between services (i.e. situations where the user must intervene in the interaction), and a NextJS dashboard exposes these interactions in a single place. 
 
 To keep track of the services I have deployed, I also wrote a super simple Software Catalog (more details in its own section).
 
@@ -71,13 +70,13 @@ On the topic of VMs, it's worth talking about their network configuration. For m
 #### VM remote connections
 Another aspect here is the remote connection. The whole point of the virtual machine was for me to be able to use it from outside my home too. Unfortunately, the remote connection protocol, VNC, is just bad. It's not encrypted, and since it's not HTTPS-based, it forces me to port-forward one port per virtual machine.
 
-Punching holes in my firewall is a fantastically bad idea. Somewhat fortunately, there is a solution: noVNC is an HTML VNC client that connects to a ``websockify`` instance that translates the VNC protocol traffic into websocket traffic. Therefore, after I start a virtual machine, the VNC connection is active, but cannot be accessed until a noVNC/websockify server is also activated. 
+Punching holes in my firewall is a fantastically bad idea. Somewhat fortunately, there is a solution: noVNC is an HTML VNC client that connects to a ``websockify`` instance that translates the VNC protocol traffic into websocket traffic. Therefore, after I start a virtual machine, the VNC connection is active, but cannot be accessed until a noVNC/websockify server is also activated. The port that websockify proxies to is already inside a proxy block in nginx. Because I have so few VMs, it's good enough (for now at least) to simply manually add the proxy block to nginx config.
 
 ![VM control](images/vms.png)
 
 While VMs can be started from Cockpit directly, starting noVNC is annoying because it's a shell command. Moreover, if I give other people access to their own VMs on my server, they need a way to turn it on/off. The Manager API uses libvirt bindings to start/stop the virtual machine and also executes the shell commands needed to turn on/off the noVNC server, and the dashboard nicely displays these options. I never access Cockpit to start/stop my virtual machines, always the dashboard. It's very convenient.
 
-The API uses a YAML-based description of which VM maps to which port. For example:
+The API stores in a mySQL DB a description of which VM maps to which port. For example:
 ```yaml
 name: "main-endeavouros"
 novnc_port: 6092
@@ -132,20 +131,24 @@ Home Assistant manages my smart lights and sensors and does automations. Wifi li
 
 ### Monitoring Stack
 
+#### LGTM stack
+
+#### Alerts & Notifications with Gotify
 
 ### Minecraft backup service
-
+This is a simple script running on a cronjob that zips the contents of a world and stores it somewhere. It only does it if the server is turned on.
 
 ### Portainer & Server Manager
 
 #### Manager API
-The manager API is a service that interacts and centralizes features that I considered essential to be in one place. Particularly, features that I wanted to interact with from outside my home network, but could not justify exposing the entire service for security/privacy reasons. For example, starting/stopping and remote connection to the VMs would be done in Cockpit, but exposing that to the internet is a very bad idea. Instead, the manager API interacts directly with ``libvirt``. 
+The manager API is a service that interacts and centralizes features that I considered essential to be in one place. Particularly, features that I wanted to interact with from outside my home network, but could not justify exposing the entire service for security/privacy reasons. For example, starting/stopping the VMs would be done in Cockpit, but exposing that to the internet is a very bad idea. Instead, the manager API interacts directly with ``libvirt``. 
 
 Another use is to allow other people with appropriate credentials to interact with my server, such as friends turning on/off the Minecraft server whenever they wish.
 
-The API is currently written in Flask, but that is subject to change in the future. I am considering migrating to Spring Boot (for educational purposes only; Flask is absolutely good enough for my use cases, maybe even better for prototyping). 
+~~The API is currently written in Flask~~. I have fully migrated to a Spring Boot backend using JPA to interact with the mySQL database. For security I use Spring Security with JWT, which is then consumed by my NextJS dashboard.
 
 #### Dashboard
+The dashboard consumes the Manager API. It is written in React with NextJS, Shadcn and Tanstack Query. With this stack it is very simple to scaffold the UI, and getting to something I consider "good enough for my home server" takes no time.
 
 ### Service Catalog
 Having so many services deployed on various ports are hard to track. I often found myself forgetting which service is on which port and had to open Portainer or run ``docker ps -a`` to remember. I wanted a way to centralize them in a single place, namely my dashboard. So I wrote a super simple YAML-based service catalog. Each YAML file corresponds to a service and has details about, including ip, port, description, url and more. Then the manager API interacts with these YAML files. I will soon migrate away from a YAML-based storage to an actual MySQL database and use ORM to query it. Again, not because it's better than the YAML files, but for educational purposes. 
@@ -179,5 +182,12 @@ This API is called by the manager API, never directly, because that will cause d
 Secrets like passwords public domain names or keys are stored in .env files that are gitignored. Sample .env are provided. For situations where it's not possible to store .envs, the files themselves are gitignored and sample files are provided.
 
 ## Backups
+Currently there are no backups strategies for either the containers nor the files outside of containers. Fingers crossed.
 
-## Monitoring & Alerts
+## The future
+Here are a few things I'd love to implement:
+- Better Grafana Dashboard
+- Better alerting with Grafana and Gotify
+- Speech to action pipeline for AI assistant (integrate with Whisper, ChatGPT, MCP, Home Assistant and Manager API)
+- Better remote connection to VMs
+- Better Dashboard home page

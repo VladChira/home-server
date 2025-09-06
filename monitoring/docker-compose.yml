@@ -75,8 +75,24 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
+      - ./GeoLite2-City.mmdb:/etc/promtail/GeoLite2-City.mmdb:ro
     command: -config.file=/etc/promtail/promtail-config.yml
     restart: unless-stopped
+    networks:
+      - home-server
+
+
+  gotify:
+    container_name: gotify
+    image: gotify/server
+    ports:
+      - 8923:80
+    environment:
+      GOTIFY_DEFAULTUSER_PASS: ${GOTIFY_DEFAULTUSER_PASS}
+      TZ: "Europe/Bucharest"
+    volumes:
+      - ./gotify_data:/app/data
+      - ./gotify_config/config.yml:/etc/gotify/config.yml
     networks:
       - home-server
 

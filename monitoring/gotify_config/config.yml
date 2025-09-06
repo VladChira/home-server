@@ -1,0 +1,16 @@
+server:
+  listenaddr: ""
+  port: 80
+  keepaliveperiodseconds: 0
+  responseheaders:
+    Access-Control-Allow-Origin: "*"
+
+database:
+  dialect: sqlite3
+  connection: data/gotify.db
+
+passstrength: 10
+
+uploadedimagesdir: data/images
+
+pluginsdir: data/plugins
