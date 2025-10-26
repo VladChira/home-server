@@ -38,6 +38,7 @@ public class MinecraftServerService {
     }
 
     public List<MinecraftServerResponse> getMinecraftServers() {
+        logger.info("Fetching Minecraft servers from Docker...");
         DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
         List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
         List<Container> minecraftServers = containers.stream()
@@ -50,6 +51,7 @@ public class MinecraftServerService {
     }
 
     public void startMinecraftServer(String serverName) {
+        logger.info("Starting Minecraft server: {}", serverName);
         DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
         List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
         Container minecraftServer = containers.stream()
@@ -59,6 +61,7 @@ public class MinecraftServerService {
     }
 
     public void stopMinecraftServer(String serverId) {
+        logger.info("Stopping Minecraft server with ID: {}", serverId);
         DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
         dockerClient.stopContainerCmd(serverId).exec();
     }
