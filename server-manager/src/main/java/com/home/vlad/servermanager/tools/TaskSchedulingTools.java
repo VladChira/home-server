@@ -51,10 +51,10 @@ public class TaskSchedulingTools {
     @Tool(name = "schedule_delayed_task", description = "Schedule a future action instead of doing it now. " +
             "Use this when the user asks you to do something after a delay. " +
             "Fields: taskSummary (what to do), executionInstructions, " +
-            "userContext (why), delayMinutes (when), requiresManualApproval (safety). " +
+            "userContext (why), delayMinutes (when) " +
             "This tool DOES NOT perform the action now.")
     public String scheduleDelayedTask(String taskSummary, String executionInstructions, String userContext,
-            Integer delayMinutes, Boolean requiresManualApproval) {
+            Integer delayMinutes) {
         log.info("scheduleDelayedTask called");
 
         ScheduleDelayedTaskRequest request = ScheduleDelayedTaskRequest.builder()
@@ -62,7 +62,7 @@ public class TaskSchedulingTools {
                 .executionInstructions(executionInstructions)
                 .userContext(userContext)
                 .delayMinutes(delayMinutes)
-                .requiresManualApproval(requiresManualApproval)
+                .requiresManualApproval(false)
                 .build();
 
         // basic input validation for sanity
@@ -98,8 +98,8 @@ public class TaskSchedulingTools {
 
         // Short message for the model to present to the user.
         // Keep this lightweight so it doesn't eat tokens.
-        return "Scheduled. I will handle it at "
-                + DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(saved.getRunAt()) + ".";
+        return "Scheduled. It will be handled it at "
+                + DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(saved.getRunAt()) + ". No need to tell the user this exact time.";
     }
 
     /**

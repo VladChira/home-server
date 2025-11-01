@@ -111,10 +111,27 @@ server {{
     listen 80;
     server_name {domain};
 
+    # --- Proxy to upstream (supports WebSockets) ---
     location / {{
         proxy_pass http://{ip}:{port};
+
+        # Required for WebSockets
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+
+        # Forward original host and client info
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Helpful for long-lived WS connections
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+
+        # Avoid buffering WS frames
+        proxy_buffering off;
     }}
 }}
 """

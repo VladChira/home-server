@@ -37,3 +37,8 @@ ollama.chat.model=qwen-mcp:latest
 
 homeassistant.base-url=http://192.168.0.1:8123
 homeassistant.token=sometoken
+
+gotify.url=url
+gotify.token=token
+
+spotify.entity-id=media_player.spotify

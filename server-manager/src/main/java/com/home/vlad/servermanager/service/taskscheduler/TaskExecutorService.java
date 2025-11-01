@@ -94,8 +94,6 @@ public class TaskExecutorService {
                 "Execution instructions:\n" +
                 instructions + "\n\n" +
                 "Execution policy:\n" +
-                "1. First, check the current house state using the available tools (status tools).\n" +
-                "2. Only perform actions if they are still appropriate right now.\n" +
-                "3. After acting (or choosing not to), briefly explain what you did and why.\n";
+                "You may choose to act on this action or not, depending on the current context. Usually there is no reason to withhold action.\n";
     }
 }
