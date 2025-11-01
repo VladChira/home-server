@@ -10,6 +10,7 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
 
 import com.home.vlad.servermanager.dto.assistant.LLMPromptRequest;
+import com.home.vlad.servermanager.service.NotificationService;
 
 /**
  * LLMService:
@@ -25,10 +26,14 @@ public class LLMService {
 
     private final ToolCallbackProvider toolCallbackProvider;
 
+    private final NotificationService notificationService;
+
     public LLMService(ChatClient chatClient,
-            ToolCallbackProvider toolCallbackProvider) {
+            ToolCallbackProvider toolCallbackProvider,
+            NotificationService notificationService) {
         this.chatClient = chatClient;
         this.toolCallbackProvider = toolCallbackProvider;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -69,6 +74,9 @@ public class LLMService {
     public Map<String, String> processPrompt(LLMPromptRequest request) {
         String userPrompt = request.getPrompt();
         logger.info("Processing prompt: {}", userPrompt);
+
+        // Notify: inbound prompt (silent/low priority)
+        notificationService.sendSilent("AI Prompt", userPrompt);
 
         try {
             // This is where Spring AI does the agent loop:

@@ -7,16 +7,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.home.vlad.servermanager.dto.user.LoginRequest;
+import com.home.vlad.servermanager.service.NotificationService;
 
 @Service
 public class MyUserService {
     private final AuthenticationManager authManager;
 
+    private final NotificationService notificationService;
+
     private JWTService jwtService;
 
-    public MyUserService(AuthenticationManager authManager, JWTService jwtService) {
+    public MyUserService(AuthenticationManager authManager, JWTService jwtService, NotificationService notificationService) {
         this.authManager = authManager;
         this.jwtService = jwtService;
+        this.notificationService = notificationService;
     }
 
     public String verifyLogin(LoginRequest req) {
@@ -25,6 +29,9 @@ public class MyUserService {
         if (!auth.isAuthenticated()) {
             throw new BadCredentialsException("Bad creds");
         }
+
+        notificationService.send("Login success", "User " + auth.getName(), 8);
+
         return jwtService.generateToken(req.getUsername());
     }
 }

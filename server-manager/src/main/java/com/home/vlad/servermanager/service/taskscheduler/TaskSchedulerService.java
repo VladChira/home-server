@@ -2,6 +2,7 @@ package com.home.vlad.servermanager.service.taskscheduler;
 
 import com.home.vlad.servermanager.model.tools.TaskSchedule;
 import com.home.vlad.servermanager.repository.tools.TaskScheduleRepository;
+import com.home.vlad.servermanager.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class TaskSchedulerService {
 
     private final TaskScheduleRepository repo;
+    private final NotificationService notificationService;
 
     /**
      * Create a scheduled task entry in the DB.
@@ -39,6 +41,9 @@ public class TaskSchedulerService {
             String userContext,
             String scheduledBy,
             boolean requiresManualApproval) {
+
+        notificationService.sendSilent("Task Scheduled", taskSummary);
+
         LocalDateTime now = LocalDateTime.now();
 
         if (runAt.isBefore(now)) {

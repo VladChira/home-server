@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.home.vlad.servermanager.config.HomeAssistantConfig;
+import com.home.vlad.servermanager.service.NotificationService;
 
 import reactor.core.publisher.Mono;
 
@@ -29,15 +30,18 @@ public class HomeAssistantClient {
 
     private final Logger logger = LoggerFactory.getLogger(HomeAssistantClient.class);
 
+    private final NotificationService notificationService;
+
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public HomeAssistantClient(HomeAssistantConfig config) {
+    public HomeAssistantClient(HomeAssistantConfig config, NotificationService notificationService) {
         this.webClient = WebClient.builder()
                 .baseUrl(config.getBaseUrl())
                 .defaultHeader("Authorization", "Bearer " + config.getToken())
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .build();
+        this.notificationService = notificationService;
     }
 
     /**
@@ -63,6 +67,9 @@ public class HomeAssistantClient {
      * Most tools will ignore the body and just assume success if we didn't throw.
      */
     public String callService(String domain, String service, Map<String, Object> payload) {
+
+        notificationService.sendSilent("HA Service Call", String.format("%s/%s: %s", domain, service, payload));
+
         if (payload == null) {
             payload = Map.of();
         }

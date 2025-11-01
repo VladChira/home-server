@@ -17,7 +17,10 @@ public class McpConfig {
             HomeAssistantStatusTools statusTools, TaskSchedulingTools taskSchedulingTools) {
         return MethodToolCallbackProvider
                 .builder()
-                .toolObjects(scriptTools, statusTools, taskSchedulingTools)
+                .toolObjects(
+                        scriptTools,
+                        statusTools,
+                        taskSchedulingTools)
                 .build();
     }
 }
