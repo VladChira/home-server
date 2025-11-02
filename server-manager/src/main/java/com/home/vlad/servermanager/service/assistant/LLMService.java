@@ -19,7 +19,6 @@ import com.home.vlad.servermanager.service.NotificationService;
  */
 @Service
 public class LLMService {
-
     private static final Logger logger = LoggerFactory.getLogger(LLMService.class);
 
     private final ChatClient chatClient;
@@ -27,6 +26,13 @@ public class LLMService {
     private final ToolCallbackProvider toolCallbackProvider;
 
     private final NotificationService notificationService;
+
+    private final static String SYSTEM_PROMPT = """
+            You are Jarvis, an expert personal assistant managing Vlad's home. Be polite, but very brief in your response. \
+            Always call the correct tools. If unsure, better to ask for clarification. \
+            After a tool call, summarize if it went well or failed. \
+            Your response will be read out by a text-to-speech. DO NOT FORMAT YOUR RESPONSE. Plain text only. \
+                                    """;
 
     public LLMService(ChatClient chatClient,
             ToolCallbackProvider toolCallbackProvider,
@@ -89,6 +95,7 @@ public class LLMService {
             CallResponseSpec response = chatClient
                     .prompt(userPrompt)
                     .toolCallbacks(toolCallbackProvider)
+                    .system(SYSTEM_PROMPT)
                     .call();
 
             String answer = safeContent(response);

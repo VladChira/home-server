@@ -1,4 +1,4 @@
-package com.home.vlad.servermanager.tools.homeassistant;
+package com.home.vlad.servermanager.tools.assistant;
 
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class HomeAssistantScriptTools extends HomeAssistantTools {
 
     // -------------------- SCRIPT DEFINITIONS BELOW --------------------
 
-    @Tool(name = "global_cozy_script", description = "Sets the mood to cozy in the entire house. This turns the following lights on: bedroom light strip,living room TV light strip, kitchen light strip")
+    @Tool(name = "global_cozy_script", description = "Sets the mood to cozy in the entire house.")
     public String runGlobalCozy() {
         return callScriptToolSimpleResponse("global_cozy", "Global cozy script called successfully", newPayload());
     }
@@ -47,6 +47,12 @@ public class HomeAssistantScriptTools extends HomeAssistantTools {
     @Tool(name = "all_lights_off", description = "Turns off all the lights in the house.")
     public String runTurnOffAllLights() {
         return callScriptToolSimpleResponse("lights_off", "Turn off all lights script called successfully",
+                newPayload());
+    }
+
+    @Tool(name = "bedtime", description = "Sets the time to bedtime mode.")
+    public String runBedtime() {
+        return callScriptToolSimpleResponse("bedtime", "Bedtime script called successfully",
                 newPayload());
     }
 }

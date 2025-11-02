@@ -1,4 +1,4 @@
-package com.home.vlad.servermanager.tools.homeassistant;
+package com.home.vlad.servermanager.tools.assistant;
 
 import java.util.HashMap;
 import java.util.Map;

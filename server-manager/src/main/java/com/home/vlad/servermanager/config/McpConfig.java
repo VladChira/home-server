@@ -6,24 +6,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.home.vlad.servermanager.tools.TaskSchedulingTools;
-import com.home.vlad.servermanager.tools.homeassistant.HomeAssistantScriptTools;
-import com.home.vlad.servermanager.tools.homeassistant.HomeAssistantStatusTools;
-import com.home.vlad.servermanager.tools.homeassistant.SpotifyTools;
+import com.home.vlad.servermanager.tools.assistant.ComposedTools;
+import com.home.vlad.servermanager.tools.assistant.HomeAssistantScriptTools;
+import com.home.vlad.servermanager.tools.assistant.HomeAssistantStatusTools;
+import com.home.vlad.servermanager.tools.assistant.SpotifyTools;
 
 @Configuration
 public class McpConfig {
 
     @Bean
     public ToolCallbackProvider toolCallbackProvider(HomeAssistantScriptTools scriptTools,
-            HomeAssistantStatusTools statusTools, TaskSchedulingTools taskSchedulingTools, SpotifyTools spotifyPlaybackTools) {
+            HomeAssistantStatusTools statusTools, TaskSchedulingTools taskSchedulingTools,
+            SpotifyTools spotifyPlaybackTools, ComposedTools composedTools) {
         return MethodToolCallbackProvider
                 .builder()
                 .toolObjects(
                         scriptTools,
                         statusTools,
                         taskSchedulingTools,
-                        spotifyPlaybackTools
-                )
+                        spotifyPlaybackTools,
+                        composedTools)
                 .build();
     }
 }

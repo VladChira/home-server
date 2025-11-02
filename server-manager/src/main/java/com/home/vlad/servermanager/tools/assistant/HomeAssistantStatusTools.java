@@ -1,4 +1,4 @@
-package com.home.vlad.servermanager.tools.homeassistant;
+package com.home.vlad.servermanager.tools.assistant;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;

@@ -108,6 +108,9 @@ public class HomeAssistantClient {
      * Throws RuntimeException if HA response can't be parsed.
      */
     public JsonNode getEntityState(String entityId) {
+
+        notificationService.sendSilent("HA State Fetch", "Fetching state for " + entityId);
+
         Mono<String> responseMono = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/states/{entityId}")
@@ -138,6 +141,9 @@ public class HomeAssistantClient {
      * Callers should filter what they need (e.g. only light.*).
      */
     public JsonNode getAllStates() {
+
+        notificationService.sendSilent("HA State Fetch", "Fetching all states");
+
         Mono<String> responseMono = webClient.get()
                 .uri("/api/states")
                 .retrieve()
@@ -152,6 +158,51 @@ public class HomeAssistantClient {
         } catch (Exception e) {
             logger.error("Failed to parse HA states list", e);
             throw new RuntimeException("Failed to parse HA states list: " + body, e);
+        }
+    }
+
+    public JsonNode browseMedia(String entityId, String mediaContentId, String mediaContentType) {
+        Map<String, Object> body = new java.util.HashMap<>();
+        body.put("entity_id", entityId);
+        if (mediaContentId != null && !mediaContentId.isBlank()) {
+            body.put("media_content_id", mediaContentId);
+        }
+        if (mediaContentType != null && !mediaContentType.isBlank()) {
+            body.put("media_content_type", mediaContentType);
+        }
+
+        // NOTE: ?return_response is required for HA to include the payload
+        String raw = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/services/media_player/browse_media")
+                        .queryParam("return_response") // key-only param
+                        .build())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        try {
+            JsonNode root = objectMapper.readTree(raw);
+            // unwrap service_response.{entityId}
+            JsonNode sr = root.path("service_response");
+            if (sr.isObject()) {
+                // prefer exact entity key; if absent, take the first object value
+                JsonNode byKey = sr.path(entityId);
+                if (!byKey.isMissingNode() && !byKey.isNull()) {
+                    return byKey;
+                }
+                // fallback: first child
+                var it = sr.fields();
+                if (it.hasNext()) {
+                    return it.next().getValue();
+                }
+            }
+            throw new RuntimeException("Unexpected browse_media response shape: " + raw);
+        } catch (Exception e) {
+            logger.warn("browse_media parse error: {}", e.getMessage());
+            throw new RuntimeException("Failed to parse browse_media response", e);
         }
     }
 }

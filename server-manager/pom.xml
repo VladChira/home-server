@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.home.vlad</groupId>
 	<artifactId>servermanager</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2</version>
 	<name>servermanager</name>
 	<description>Home Server Manager</description>
 	<url/>
@@ -112,6 +112,11 @@
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
 		</dependency>
+
+		<dependency>
+      		<groupId>org.springframework.ai</groupId>
+      		<artifactId>spring-ai-starter-model-openai</artifactId>
+    	</dependency>
 
 
 		<dependency>
