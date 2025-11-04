@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.home.vlad.servermanager.service.assistant.HomeAssistantClient;
 
 @Component
-public class HomeAssistantStatusTools extends HomeAssistantTools {
+public class HomeAssistantStatusTools extends BaseHomeAssistantTools {
     // entity IDs we care about
     private static final String PING_SENSOR = "binary_sensor.192_168_0_67";
     private static final String TV_ENTITY_ID = "remote.samsung_q67aa_43_tv";

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagers;
@@ -25,6 +25,7 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.home.vlad.servermanager.security.filter.HomeAssistantApiKeyFilter;
 import com.home.vlad.servermanager.security.filter.JWTFilter;
 import com.home.vlad.servermanager.service.user.MyUserDetailsService;
 
@@ -41,6 +42,9 @@ public class SecurityConfig {
 
     @Autowired
     private JWTFilter jwtFilter;
+
+    @Autowired
+    private HomeAssistantApiKeyFilter haApiKeyFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -89,11 +93,12 @@ public class SecurityConfig {
                         .requestMatchers("/manage/api/v1/llm/**", "/manage/api/v1/voice/**")
                         .access(AuthorizationManagers.allOf(
                                 lanOnlyAuthorizationManager(),
-                                AuthenticatedAuthorizationManager.authenticated()))
+                                AuthorityAuthorizationManager.hasAnyAuthority("HOMEASSISTANT", "ADMIN")))
                 
                         // Public authenticated access for other endpoints
                         .requestMatchers("/manage/api/v1/login").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(haApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

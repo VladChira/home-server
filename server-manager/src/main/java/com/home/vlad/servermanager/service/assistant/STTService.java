@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,8 @@ public class STTService {
     private static final String model = "tiny";
     private static final String lang = "en";
     private static final Duration timeout = Duration.ofSeconds(30);
+
+    private static final ExecutorService CLEANUP_EXECUTOR = java.util.concurrent.Executors.newSingleThreadExecutor();
 
     Logger logger = LoggerFactory.getLogger(STTService.class);
 
@@ -112,18 +115,20 @@ public class STTService {
             Thread.currentThread().interrupt();
             throw new IOException("Interrupted while running Whisper", ie);
         } finally {
-            // Best-effort cleanup
-            logger.info("Cleaning up working directory {}", workDir);
-            try (var stream = Files.walk(workDir)) {
-                stream.sorted(Comparator.reverseOrder()).forEach(path -> {
-                    try {
-                        logger.info("Deleting {}", path);
-                        Files.deleteIfExists(path);
-                    } catch (IOException ignored) {
-                    }
-                });
-            } catch (IOException ignored) {
-            }
+            Path dirToDelete = workDir;
+            CLEANUP_EXECUTOR.submit(() -> {
+                logger.info("Cleaning up working directory {}", dirToDelete);
+                try (var stream = Files.walk(dirToDelete)) {
+                    stream.sorted(Comparator.reverseOrder()).forEach(path -> {
+                        try {
+                            logger.info("Deleting {}", path);
+                            Files.deleteIfExists(path);
+                        } catch (IOException ignored) {
+                        }
+                    });
+                } catch (IOException ignored) {
+                }
+            });
         }
     }
 

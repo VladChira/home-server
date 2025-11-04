@@ -4,21 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.home.vlad.servermanager.config.SpotifyConfig;
 import com.home.vlad.servermanager.service.assistant.HomeAssistantClient;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
 @Component
 @Slf4j
-public class SpotifyTools extends HomeAssistantTools {
+public class SpotifyTools extends BaseHomeAssistantTools {
 
     private SpotifyConfig spotifyConfig;
 

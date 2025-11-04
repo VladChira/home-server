@@ -205,4 +205,17 @@ public class HomeAssistantClient {
             throw new RuntimeException("Failed to parse browse_media response", e);
         }
     }
+
+    public JsonNode getShoppingList() {
+        String raw = webClient.get()
+                .uri("/api/shopping_list")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        try {
+            return objectMapper.readTree(raw);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse shopping list", e);
+        }
+    }
 }

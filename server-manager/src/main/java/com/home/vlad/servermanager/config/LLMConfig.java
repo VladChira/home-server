@@ -3,15 +3,13 @@ package com.home.vlad.servermanager.config;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Slf4j
 public class LLMConfig {
-
-    private String provider = "ollama";
 
     @Bean("ollamaChatClient")
     public ChatClient chatClientOllama(OllamaChatModel ollamaChatModel) {
@@ -22,16 +20,4 @@ public class LLMConfig {
     public ChatClient chatClientOpenAI(OpenAiChatModel openAiChatModel) {
         return ChatClient.builder(openAiChatModel).build();
     }
-
-    @Bean
-    @Primary
-    public ChatClient chatClient(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient,
-            @Qualifier("openaiChatClient") ChatClient openAiChatClient) {
-        if (provider.equals("openai")) {
-            return openAiChatClient;
-        } else {
-            return ollamaChatClient;
-        }
-    }
-
 }

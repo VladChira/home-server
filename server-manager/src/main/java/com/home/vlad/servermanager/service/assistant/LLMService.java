@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ChatClient.CallResponseSpec;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.home.vlad.servermanager.dto.assistant.LLMPromptRequest;
@@ -21,7 +22,10 @@ import com.home.vlad.servermanager.service.NotificationService;
 public class LLMService {
     private static final Logger logger = LoggerFactory.getLogger(LLMService.class);
 
-    private final ChatClient chatClient;
+    private final ChatClient ollamaChatClient;
+    private final ChatClient openAiChatClient;
+
+    private final LLMProviderManager llmProviderManager;
 
     private final ToolCallbackProvider toolCallbackProvider;
 
@@ -34,12 +38,15 @@ public class LLMService {
             Your response will be read out by a text-to-speech. DO NOT FORMAT YOUR RESPONSE. Plain text only. \
                                     """;
 
-    public LLMService(ChatClient chatClient,
+    public LLMService(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient,
+            @Qualifier("openaiChatClient") ChatClient openAiChatClient,
             ToolCallbackProvider toolCallbackProvider,
-            NotificationService notificationService) {
-        this.chatClient = chatClient;
+            NotificationService notificationService, LLMProviderManager llmProviderManager) {
+        this.ollamaChatClient = ollamaChatClient;
+        this.openAiChatClient = openAiChatClient;
         this.toolCallbackProvider = toolCallbackProvider;
         this.notificationService = notificationService;
+        this.llmProviderManager = llmProviderManager;
     }
 
     /**
@@ -52,10 +59,16 @@ public class LLMService {
      * to invoke anything during warmup; we just want Ollama to load weights.
      */
     public void preloadModel() {
+
+        if (llmProviderManager.getCurrentProvider().equals("openai")) {
+            logger.info("Skipping preload: current LLM provider is OpenAI.");
+            return;
+        }
+
         logger.info("Preloading model...");
 
         try {
-            CallResponseSpec resp = chatClient
+            CallResponseSpec resp = ollamaChatClient
                     .prompt("Ready?")
                     .call();
 
@@ -79,6 +92,13 @@ public class LLMService {
      */
     public Map<String, String> processPrompt(LLMPromptRequest request) {
         String userPrompt = request.getPrompt();
+        String currentProvider = llmProviderManager.getCurrentProvider();
+
+        ChatClient chatClient = "openai".equalsIgnoreCase(currentProvider)
+                ? openAiChatClient
+                : ollamaChatClient;
+
+        logger.info("Current LLM provider: {}", currentProvider);
         logger.info("Processing prompt: {}", userPrompt);
 
         // Notify: inbound prompt (silent/low priority)

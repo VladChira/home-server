@@ -12,7 +12,7 @@ import com.home.vlad.servermanager.service.assistant.HomeAssistantClient;
  * Tools that wrap Home Assistant scripts (domain "script").
  */
 @Component
-public class HomeAssistantScriptTools extends HomeAssistantTools {
+public class HomeAssistantScriptTools extends BaseHomeAssistantTools {
 
     Logger logger = org.slf4j.LoggerFactory.getLogger(HomeAssistantScriptTools.class);
 

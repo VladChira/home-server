@@ -13,11 +13,11 @@ import com.home.vlad.servermanager.service.assistant.HomeAssistantClient;
  * - Helpers to build payloads and invoke HA services
  * - A consistent summary format to return back to the LLM
  */
-public abstract class HomeAssistantTools {
+public abstract class BaseHomeAssistantTools {
 
     protected final HomeAssistantClient haClient;
 
-    protected HomeAssistantTools(HomeAssistantClient haClient) {
+    protected BaseHomeAssistantTools(HomeAssistantClient haClient) {
         this.haClient = haClient;
     }
 
