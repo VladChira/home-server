@@ -207,6 +207,9 @@ public class HomeAssistantClient {
     }
 
     public JsonNode getShoppingList() {
+        logger.info("Fetching shopping list from Home Assistant");
+
+        notificationService.sendSilent("HA Shopping List Fetch", "Fetching shopping list");
         String raw = webClient.get()
                 .uri("/api/shopping_list")
                 .retrieve()
@@ -216,6 +219,22 @@ public class HomeAssistantClient {
             return objectMapper.readTree(raw);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse shopping list", e);
+        }
+    }
+
+    public JsonNode getStates() {
+        logger.info("Fetching states from Home Assistant");
+
+        notificationService.sendSilent("HA States Fetch", "Fetching states");
+        String raw = webClient.get()
+                .uri("/api/states")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        try {
+            return objectMapper.readTree(raw);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse states", e);
         }
     }
 }

@@ -37,7 +37,7 @@ public class ShoppingListTools extends BaseHomeAssistantTools {
         return items.toString();
     }
 
-    @Tool(name = "shopping_list_add_item", description = "Add an item to the Home Assistant shopping list. Capitalize first word.")
+    @Tool(name = "shopping_list_add_item", description = "Add an item to the Home Assistant shopping list.")
 
     public String addItem(String itemName) {
         if (itemName == null || itemName.isBlank()) {
@@ -50,16 +50,15 @@ public class ShoppingListTools extends BaseHomeAssistantTools {
         return "Item added: " + itemName;
     }
 
-    @Tool(name = "shopping_list_complete_item", description = "Mark an existing shopping list item as completed. " +
-            "Arg: id (string, required). You MUST call shopping_list_items first to get IDs.")
-    public String completeItem(String itemId) {
-        if (itemId == null || itemId.isBlank()) {
-            return "Item id is required.";
+    @Tool(name = "shopping_list_remove_item", description = "Remove an existing item from the shopping list by name. You MUST CALL shopping_list_items FIRST to get the correct names.")
+    public String removeItem(String name) {
+        if (name == null || name.isBlank()) {
+            return "Item name is required.";
         }
         haClient.callService(
                 "shopping_list",
-                "complete_item",
-                Map.of("id", itemId));
-        return "Item completed: " + itemId;
+                "remove_item",
+                Map.of("name", name));
+        return "Item removed: " + name;
     }
 }

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class STTService {
-    private static final String model = "tiny";
+    private static final String model = "base";
     private static final String lang = "en";
     private static final Duration timeout = Duration.ofSeconds(30);
 
@@ -121,7 +121,6 @@ public class STTService {
                 try (var stream = Files.walk(dirToDelete)) {
                     stream.sorted(Comparator.reverseOrder()).forEach(path -> {
                         try {
-                            logger.info("Deleting {}", path);
                             Files.deleteIfExists(path);
                         } catch (IOException ignored) {
                         }

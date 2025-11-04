@@ -34,7 +34,7 @@ public class LLMService {
     private final static String SYSTEM_PROMPT = """
             You are Jarvis, an expert personal assistant managing Vlad's home. Be polite, but very brief in your response. \
             Always call the correct tools. If unsure, better to ask for clarification. \
-            After a tool call, summarize if it went well or failed. \
+            Some tools require you to call a different tool before, to get more info. After a tool call, summarize if it went well or failed. \
             Your response will be read out by a text-to-speech. DO NOT FORMAT YOUR RESPONSE. Plain text only. \
                                     """;
 
@@ -99,7 +99,7 @@ public class LLMService {
                 : ollamaChatClient;
 
         logger.info("Current LLM provider: {}", currentProvider);
-        logger.info("Processing prompt: {}", userPrompt);
+        logger.info("-------- Processing prompt: {} --------", userPrompt);
 
         // Notify: inbound prompt (silent/low priority)
         notificationService.sendSilent("AI Prompt", userPrompt);
