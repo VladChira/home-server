@@ -21,7 +21,8 @@ With what initially started as a simple set of docker-compose files for a few co
    - [Raspberry Pi](#raspberry-pi-edge) 
 5. [Configuration & Secrets](#configuration--secrets)  
 6. [Backups](#backups)  
-7. [The future](#the--future)
+7. [AI Speech to Action Pipeline](#ai-speech-to-action-pipeline)
+8. [The future](#the--future)
 
 
 ## Overview
@@ -138,14 +139,13 @@ Home Assistant manages my smart lights and sensors and does automations. Wifi li
 ### Minecraft backup service
 This is a simple script running on a cronjob that zips the contents of a world and stores it somewhere. It only does it if the server is turned on.
 
-### Portainer & Server Manager
+### Server Manager
 
-#### Manager API
-The manager API is a service that interacts and centralizes features that I considered essential to be in one place. Particularly, features that I wanted to interact with from outside my home network, but could not justify exposing the entire service for security/privacy reasons. For example, starting/stopping the VMs would be done in Cockpit, but exposing that to the internet is a very bad idea. Instead, the manager API interacts directly with ``libvirt``. 
+The Server Manager API is a service that interacts and centralizes features that I considered essential to be in one place. Particularly, features that I wanted to interact with from outside my home network, but could not justify exposing the entire service for security/privacy reasons. For example, starting/stopping the VMs would be done in Cockpit, but exposing that to the internet is a very bad idea. Instead, the manager API interacts directly with ``libvirt``. 
 
 Another use is to allow other people with appropriate credentials to interact with my server, such as friends turning on/off the Minecraft server whenever they wish.
 
-~~The API is currently written in Flask~~. I have fully migrated to a Spring Boot backend using JPA to interact with the mySQL database. For security I use Spring Security with JWT, which is then consumed by my NextJS dashboard.
+~~The API is currently written in Flask~~. I have fully migrated to a Spring Boot backend using JPA to interact with the mySQL database. For security I use Spring Security with JWT and RBAC, which is then consumed by my NextJS dashboard.
 
 #### Dashboard
 The dashboard consumes the Manager API. It is written in React with NextJS, Shadcn and Tanstack Query. With this stack it is very simple to scaffold the UI, and getting to something I consider "good enough for my home server" takes no time.
@@ -184,10 +184,58 @@ Secrets like passwords public domain names or keys are stored in .env files that
 ## Backups
 Currently there are no backups strategies for either the containers nor the files outside of containers. Fingers crossed.
 
+## AI Speech to Action Pipeline
+
+### Overview
+The AI-powered speech to action pipeline is a service that enables voice control over some of the things in my home, similar to Google Home or Amazon Alexa.
+It is designed to be fully local, although it supports offloading to cloud AI models.
+
+Example usage: ``Hey Jarvis, please turn off all my lights``.
+
+The flow is as follows:
+- Wake word detection. Using OpenWakeWord, either running on my Android phone or on my server directly
+- Utterance after wake word is being sent to the Manager API as a .wav file
+- OpenAI Whisper speech to text converts the utterance to text
+- The text is fed to an LLM with MCP tool calling capabilities with Spring AI
+- The LLM takes the required action and produces an output
+- THe output is fed into a text to speech model, which is then played on a speaker
+
+I have integrated many tools from different sources. The idea is for the Server Manager MCP server to be a *composer of tools*.
+
+### Wake Word Detection
+Wake word detection is done using OpenWakeWord, a free and open-source wakeword library that has great performance on tiny devices. Officially it is implemented in Python only, but I did find [a repository](https://github.com/hasanatlodhi/OpenwakewordforAndroid) that implemented it for Android, which works really well with a few changes:
+- Replace hey nugget with hey jarvis pre-trained model
+- Added way to run as foreground service to permanently record audio
+
+Once wake word has been detected, the utterance is being recorded and saved to a .wav file. Then the file is uploaded to the Server Manager API and the rest of the pipeline ca proceed.
+
+### Speech to Text
+Once the following endpoint is called with an audio recording of the prompt:
+```java
+@PostMapping(path = "/command", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Map<String, String>> runVoiceCommand(@RequestPart("audio") MultipartFile audio) {
+   // ...
+}
+```
+The file is saved to disk, then the Whisper binary is called to produce the text. Models ``tiny`` and ``base`` seem to work good enough in normal settings. The point is to be faster than more accurate, since most typos can be worked around by the LLMs. 
+
+### LLM Providers and Tool Calling
+
+
+#### Home Assistant Tools
+
+#### Task Scheduler
+
+#### Observability
+
+### Text to Speech
+
+
+
 ## The future
 Here are a few things I'd love to implement:
-- Better Grafana Dashboard
-- Better alerting with Grafana and Gotify
-- Speech to action pipeline for AI assistant (integrate with Whisper, ChatGPT, MCP, Home Assistant and Manager API)
+- ~~Better Grafana Dashboard~~  DONE
+- ~~Better alerting with Grafana and Gotify~~  DONE
+- ~~Speech to action pipeline for AI assistant (integrate with Whisper, ChatGPT, MCP, Home Assistant and Manager API)~~  DONE
 - Better remote connection to VMs
 - Better Dashboard home page
