@@ -226,10 +226,18 @@ The file is saved to disk, then the Whisper binary is called to produce the text
 
 #### Task Scheduler
 
-#### Observability
+### Observability
 
 ### Text to Speech
 
+### Model size constraints
+Running an LLM locally provides an extra challenge, as I need both a lot of VRAM and a powerful GPU, of which I have neither. I can get away with running a small none-thinking model with tool-calling capabilities, such as ``qwen2.5:7b``. It seems to be the most consistent when using Spring AI, although it is poor at planning more complex chains of actions.
+
+Moreover, to make it fast, I need to use very few tokens for the name, descriptions and results of the MCP tools, which is why I cannot simply rely on the Home Assistant MCP. The tools are too complicated for a tiny AI to correctly call. This is the reason I implemented my own tools on top of the HA API instead. I can control the amount of tokens I use in the prompts and MCP tools. 
+
+For more complicated calls, I can simply call ``gpt-5-nano``, which is both fast and cheap.
+
+### Mobile App
 
 
 ## The future
