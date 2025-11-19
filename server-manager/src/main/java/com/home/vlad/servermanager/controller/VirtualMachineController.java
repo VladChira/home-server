@@ -1,6 +1,7 @@
 package com.home.vlad.servermanager.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.home.vlad.servermanager.dto.libvirt.VMStatus;
-import com.home.vlad.servermanager.dto.novnc.NoVncStatus;
 import com.home.vlad.servermanager.model.vm.VirtualMachineEntity;
 import com.home.vlad.servermanager.service.vm.VirtualMachineService;
 
@@ -74,20 +74,8 @@ public class VirtualMachineController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{name}/novnc/status")
-    public NoVncStatus getNoVNCStatus(@PathVariable String name) {
-        return vmService.getNoVNCStatus(name);
-    }
-
-    @PostMapping("/{name}/novnc/start")
-    public ResponseEntity<Void> startNoVNC(@PathVariable String name) {
-        vmService.startNoVNC(name);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{name}/novnc/stop")
-    public ResponseEntity<Void> stopNoVNC(@PathVariable String name) {
-        vmService.stopNoVNC(name);
-        return ResponseEntity.ok().build();
+    @GetMapping("/guac-token")
+    public ResponseEntity<Map<String, String>> getGuacToken() {
+        return ResponseEntity.ok(Map.of("guac-token", vmService.getGuacToken()));
     }
 }

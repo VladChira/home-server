@@ -12,9 +12,8 @@ export type DomainState =
 
 export type VirtualMachine = {
     name: string;
-    vnc_status: 'running' | 'stopped' | 'unknown';
     vm_status: DomainState | 'unknown';
-    base_path: string;
+    guac_id?: string;
 };
 
 
@@ -63,26 +62,10 @@ export async function getVirtualMachines(): Promise<VirtualMachine[]> {
             } catch (err) {
                 console.error(`Error fetching status for VM ${vm.name}:`, err);
             }
-
-            let vncStatus: 'running' | 'stopped' | 'unknown' = 'unknown'
-            try {
-                const statusRes = await apiFetch(`/vms/${vm.name}/novnc/status`, { method: 'GET' });
-
-                if (statusRes.ok) {
-                    const statusData = await statusRes.json();
-                    vncStatus = statusData.status || 'unknown';
-                } else {
-                    console.warn(`Could not fetch status for noVNC server for VM ${vm.name}: ${statusRes.statusText}`);
-                }
-            } catch (err) {
-                console.error(`Error fetching status for noVNC server for VM ${vm.name}:`, err);
-            }
-
             return {
                 name: vm.name,
-                base_path: vm.base_path,
                 vm_status: vmStatus,
-                vnc_status: vncStatus,
+                guac_id: vm.guacClientId,
             };
         })
     );
@@ -161,55 +144,22 @@ export async function forceShutdownVirtualMachine(vmName: string): Promise<{ suc
     }
 }
 
-export async function startVNCServer(vmName: string): Promise<{ success: boolean; message: string }> {
+export async function getGuacToken(): Promise<string> {
     try {
-        const res = await apiFetch(`/vms/${vmName}/novnc/start`, { method: 'POST' });
+        const res = await apiFetch('/vms/guac-token', { method: 'GET' });
 
         if (!res.ok) {
-            const error = await res.json();
-            return {
-                success: false,
-                message: error.error || 'Failed to start noVNC server for VM',
-            };
+            console.error("Failed to fetch Guacamole token:", res.statusText);
+            throw new Error("Failed to fetch Guacamole token");
         }
 
-        return {
-            success: true,
-            message: `noVNC server successfully started`,
-        };
-    } catch (err: any) {
-        return {
-            success: false,
-            message: err.message || 'Request failed',
-        };
+        const data = await res.json();
+        return data['guac-token'];
+    } catch (err) {
+        console.error("Error while fetching Guacamole token:", err);
+        throw err;
     }
 }
-
-export async function stopVNCServer(vmName: string): Promise<{ success: boolean; message: string }> {
-    console.log("here")
-    try {
-        const res = await apiFetch(`/vms/${vmName}/novnc/stop`, { method: 'POST' });
-
-        if (!res.ok) {
-            const error = await res.json();
-            return {
-                success: false,
-                message: error.error || 'Failed to stop noVNC server for VM',
-            };
-        }
-
-        return {
-            success: true,
-            message: `noVNC server successfully stopped`,
-        };
-    } catch (err: any) {
-        return {
-            success: false,
-            message: err.message || 'Request failed',
-        };
-    }
-}
-
 
 export function useVMs() {
     return useQuery<VirtualMachine[]>({

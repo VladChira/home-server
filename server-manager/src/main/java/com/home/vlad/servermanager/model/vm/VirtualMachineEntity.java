@@ -23,12 +23,6 @@ public class VirtualMachineEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "novnc_port", nullable = false)
-    private Integer novncPort;
-
-    @Column(name = "vm_port", nullable = false)
-    private Integer vmPort;
-
-    @Column(name = "base_path", nullable = false)
-    private String basePath;
+    @Column(name = "guac_client_id")
+    private String guacClientId;
 }

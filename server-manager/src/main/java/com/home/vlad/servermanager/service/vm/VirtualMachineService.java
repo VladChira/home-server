@@ -7,12 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.home.vlad.servermanager.dto.libvirt.VMStatus;
-import com.home.vlad.servermanager.dto.novnc.NoVncStatus;
 import com.home.vlad.servermanager.exception.vm.VMNotFoundException;
 import com.home.vlad.servermanager.model.vm.VirtualMachineEntity;
 import com.home.vlad.servermanager.repository.vm.VirtualMachineRepository;
 import com.home.vlad.servermanager.service.libvirt.LibvirtService;
-import com.home.vlad.servermanager.service.novnc.NoVNCService;
 
 @Service
 public class VirtualMachineService {
@@ -21,13 +19,13 @@ public class VirtualMachineService {
     private final VirtualMachineRepository repo;
 
     private final LibvirtService libvirtService;
-    private final NoVNCService noVNCService;
 
-    public VirtualMachineService(VirtualMachineRepository repo, LibvirtService libvirtService,
-            NoVNCService noVNCService) {
+    private final GuacamoleService guacamoleService;
+
+    public VirtualMachineService(VirtualMachineRepository repo, LibvirtService libvirtService, GuacamoleService guacamoleService) {
         this.repo = repo;
         this.libvirtService = libvirtService;
-        this.noVNCService = noVNCService;
+        this.guacamoleService = guacamoleService;
     }
 
     private VirtualMachineEntity ensureVMExists(String name) {
@@ -78,20 +76,7 @@ public class VirtualMachineService {
         libvirtService.forceShutdown(name);
     }
 
-    public NoVncStatus getNoVNCStatus(String name) {
-        ensureVMExists(name);
-        return noVNCService.getNoVncStatus(name);
-    }
-
-    public void startNoVNC(String name) {
-        logger.info("Starting noVNC for VM with name: " + name);
-        VirtualMachineEntity vm = ensureVMExists(name);
-        noVNCService.start(name, vm.getVmPort(), vm.getNovncPort());
-    }
-
-    public void stopNoVNC(String name) {
-        logger.info("Stopping noVNC for VM with name: " + name);
-        ensureVMExists(name);
-        noVNCService.stop(name);
+    public String getGuacToken() {
+        return guacamoleService.getGuacToken();
     }
 }

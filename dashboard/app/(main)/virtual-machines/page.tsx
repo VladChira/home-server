@@ -2,20 +2,16 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import VMForceShutdownButton from "@/components/virtual-machines/VMForceShutdown";
-import VMStartStopButton from "@/components/virtual-machines/VMStartStopButton";
-import VNCSwitch from "@/components/virtual-machines/VNCSwitch";
+import { GuacamoleButton } from "@/components/virtual-machines/GuacamoleButton";
+import VMStartStopButton from "@/components/virtual-machines/VMStartStopButton";;
 import { useVMs, VirtualMachine } from "@/lib/vm";
 import { AlertTriangle, ExternalLink, Terminal } from "lucide-react";
 
@@ -24,25 +20,20 @@ const VM_RUNNING_STRING = "VIR_DOMAIN_RUNNING";
 const virtualMachines: VirtualMachine[] = [
     {
         name: "denis-vm",
-        vnc_status: "stopped",
         vm_status: "VIR_DOMAIN_RUNNING",
-        base_path: "denis"
+        guac_id: "wxyzxyzxyz"
     },
     {
         name: "main-ubuntu",
-        vnc_status: "stopped",
         vm_status: "VIR_DOMAIN_SHUTOFF",
-        base_path: "main-ubuntu"
+        guac_id: "asdasdasd"
     },
     {
         name: "windows-vm",
-        vnc_status: "stopped",
         vm_status: "VIR_DOMAIN_RUNNING",
-        base_path: "windows-vm"
+        guac_id: "qwertyuiop"
     },
 ];
-
-const VM_URL = process.env.NEXT_PUBLIC_VM_URL;
 
 export default function VMsPage() {
     const { data: vms = [], isLoading, error } = useVMs();
@@ -71,8 +62,7 @@ export default function VMsPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="font-medium text-xl">Name</TableHead>
-                            <TableHead className="font-medium text-xl">VNC Status</TableHead>
-                            <TableHead className="font-medium text-xl">VNC Server</TableHead>
+                            <TableHead className="font-medium text-xl">Remote Connect</TableHead>
                             <TableHead className="font-medium text-xl">VM Status</TableHead>
                             <TableHead className="font-medium text-xl">Virtual Machine</TableHead>
                         </TableRow>
@@ -84,28 +74,9 @@ export default function VMsPage() {
                                 <TableCell className="font-medium">
                                     <span className="font-bold text-lg">{vm.name}</span>
                                 </TableCell>
-                                <TableCell className="text-base font-bold">
-                                    <div className="flex items-center gap-2">
-                                        <span
-                                            className={`inline-block w-3 h-3 rounded-full ${vm.vnc_status === "running" ? "bg-green-500" : "bg-red-500"
-                                                }`}
-                                        />
-                                        <span>{vm.vnc_status}</span>
-                                    </div>
-                                </TableCell>
                                 <TableCell className="text-base font-medium">
                                     <div className="flex items-center gap-2">
-                                        <VNCSwitch vm={vm} defaultChecked={vm.vnc_status == "running"} />
-                                        <Button asChild className="bg-accent-foreground">
-                                            <a
-                                                href={`${VM_URL}/${vm.name}/vnc.html`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <ExternalLink />
-                                            </a>
-                                        </Button>
-
+                                        <GuacamoleButton vm={vm} />
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-base font-medium">

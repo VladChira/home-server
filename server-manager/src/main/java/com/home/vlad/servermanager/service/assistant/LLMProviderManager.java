@@ -13,6 +13,10 @@ public class LLMProviderManager {
     // optional: per-request override (ThreadLocal)
     private final ThreadLocal<String> requestOverride = new ThreadLocal<>();
 
+    private final AtomicReference<Integer> usePreviousChatsGlobal = new AtomicReference<>(0);
+
+    private final ThreadLocal<Integer> previousChatsCount = new ThreadLocal<>();
+
     public String getCurrentProvider() {
         // header / request override has highest priority
         String ro = requestOverride.get();
@@ -32,5 +36,25 @@ public class LLMProviderManager {
 
     public void clearRequestOverride() {
         requestOverride.remove();
+    }
+
+    public int getPreviousChatsCount() {
+        Integer uro = previousChatsCount.get();
+        if (uro != null) {
+            return uro.intValue();
+        }
+        return 0;
+    }
+
+    public void setUseMemoryGlobal(Integer useMemoryCount) {
+        usePreviousChatsGlobal.set(useMemoryCount);
+    }
+
+    public void setPreviousChatsCount(Integer previousChatsCount) {
+        this.previousChatsCount.set(previousChatsCount);
+    }
+
+    public void clearUseMemoryOverride() {
+        previousChatsCount.remove();
     }
 }

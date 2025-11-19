@@ -51,7 +51,7 @@ const AuthTab = () => {
             router.push('/');
         } catch (err) {
             console.error(err);
-            setError('Somethign went wrong while logging in.');
+            setError('Something went wrong while logging in.');
         } finally {
             setLoading(false);
         }

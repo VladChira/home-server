@@ -1,6 +1,9 @@
 
 src/main/resources/application.properties
 
+# Ignore ONNX model files, too big for Git
+src/main/resources/onnx
+
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 

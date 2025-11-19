@@ -31,6 +31,8 @@ public class LLMService {
 
     private final NotificationService notificationService;
 
+    private final ConversationMemoryService memoryService;
+
     private final static String SYSTEM_PROMPT = """
             You are Jarvis, an expert personal assistant managing Vlad's home. Be polite, but very brief in your response. \
             Always call the correct tools. If unsure, better to ask for clarification. \
@@ -41,12 +43,14 @@ public class LLMService {
     public LLMService(@Qualifier("ollamaChatClient") ChatClient ollamaChatClient,
             @Qualifier("openaiChatClient") ChatClient openAiChatClient,
             ToolCallbackProvider toolCallbackProvider,
-            NotificationService notificationService, LLMProviderManager llmProviderManager) {
+            NotificationService notificationService, LLMProviderManager llmProviderManager,
+            ConversationMemoryService memoryService) {
         this.ollamaChatClient = ollamaChatClient;
         this.openAiChatClient = openAiChatClient;
         this.toolCallbackProvider = toolCallbackProvider;
         this.notificationService = notificationService;
         this.llmProviderManager = llmProviderManager;
+        this.memoryService = memoryService;
     }
 
     /**
@@ -94,9 +98,30 @@ public class LLMService {
         String userPrompt = request.getPrompt();
         String currentProvider = llmProviderManager.getCurrentProvider();
 
+        // Pick the provider
         ChatClient chatClient = "openai".equalsIgnoreCase(currentProvider)
                 ? openAiChatClient
                 : ollamaChatClient;
+
+        // Choose whether to use memory of previous chats and how many
+        StringBuilder promptBuilder = new StringBuilder();
+        // int memoryCount = llmProviderManager.getPreviousChatsCount();
+        int memoryCount = 2;
+        if (memoryCount > 0) {
+            logger.info("Using memory of last {} exchanges.", memoryCount);
+
+            promptBuilder.append(String.format("Here is the context from previous %d conversations. Never re-execute past actions. \n\n", memoryCount));
+
+            var history = memoryService.getLast(memoryCount);
+            for (ConversationMemoryService.Exchange ex : history) {
+                promptBuilder
+                        .append("Previous user message: ").append(ex.getUserPrompt()).append("\n")
+                        .append("Previous assistant answer: ").append(ex.getAssistantAnswer()).append("\n");
+                promptBuilder.append("\n");
+            }
+            promptBuilder.append("End of previous conversations. Only execute below actions:\n\n");
+            logger.info(promptBuilder.toString());
+        }
 
         logger.info("Current LLM provider: {}", currentProvider);
         logger.info("-------- Processing prompt: {} --------", userPrompt);
@@ -112,8 +137,10 @@ public class LLMService {
             // - feed the tool result back to the model
             // 3. Get the final assistant message.
 
+            String finalPrompt = promptBuilder.append(userPrompt).toString();
+
             CallResponseSpec response = chatClient
-                    .prompt(userPrompt)
+                    .prompt(finalPrompt)
                     .toolCallbacks(toolCallbackProvider)
                     .system(SYSTEM_PROMPT)
                     .call();
@@ -121,6 +148,12 @@ public class LLMService {
             String answer = safeContent(response);
 
             logger.info("LLM final answer: {}", answer);
+
+            // store answer in memory
+            memoryService.addExchange(new ConversationMemoryService.Exchange(
+                    userPrompt,
+                    answer,
+                    null));
 
             return Map.of("output", answer);
 
