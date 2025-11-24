@@ -71,11 +71,11 @@ On the topic of VMs, it's worth talking about their network configuration. For m
 #### VM remote connections
 Another aspect here is the remote connection. The whole point of the virtual machine was for me to be able to use it from outside my home too. Unfortunately, the remote connection protocol, VNC, is just bad. It's not encrypted, and since it's not HTTPS-based, it forces me to port-forward one port per virtual machine.
 
-Punching holes in my firewall is a fantastically bad idea. Somewhat fortunately, there is a solution: noVNC is an HTML VNC client that connects to a ``websockify`` instance that translates the VNC protocol traffic into websocket traffic. Therefore, after I start a virtual machine, the VNC connection is active, but cannot be accessed until a noVNC/websockify server is also activated. The port that websockify proxies to is already inside a proxy block in nginx. Because I have so few VMs, it's good enough (for now at least) to simply manually add the proxy block to nginx config.
+Punching holes in my firewall is a fantastically bad idea. ~~Somewhat fortunately, there is a solution: noVNC is an HTML VNC client that connects to a ``websockify`` instance that translates the VNC protocol traffic into websocket traffic. Therefore, after I start a virtual machine, the VNC connection is active, but cannot be accessed until a noVNC/websockify server is also activated. The port that websockify proxies to is already inside a proxy block in nginx. Because I have so few VMs, it's good enough (for now at least) to simply manually add the proxy block to nginx config.~~
 
 ![VM control](images/vms.png)
 
-While VMs can be started from Cockpit directly, starting noVNC is annoying because it's a shell command. Moreover, if I give other people access to their own VMs on my server, they need a way to turn it on/off. The Manager API uses libvirt bindings to start/stop the virtual machine and also executes the shell commands needed to turn on/off the noVNC server, and the dashboard nicely displays these options. I never access Cockpit to start/stop my virtual machines, always the dashboard. It's very convenient.
+~~While VMs can be started from Cockpit directly, starting noVNC is annoying because it's a shell command.~~ Moreover, if I give other people access to their own VMs on my server, they need a way to turn it on/off. The Manager API uses libvirt bindings to start/stop the virtual machine and also executes the shell commands needed to turn on/off the noVNC server, and the dashboard nicely displays these options. I never access Cockpit to start/stop my virtual machines, always the dashboard. It's very convenient.
 
 The API stores in a mySQL DB a description of which VM maps to which port. For example:
 ```yaml
@@ -85,10 +85,31 @@ vm_port: 5901
 base_path: main-endeavouros
 ```
 
-Despite all this, the setup still suffers from lag sometimes. The protocol is just plain bad, it's beyond my control. 
+~~Despite all this, the setup still suffers from lag sometimes.~~ The protocol is just plain bad, it's beyond my control. 
 
+I've switched to RDP protocol instead of VNC, and ditching noVNC for Apache Guacamole. I should have done this a long time ago, it's much better this way. Apache Guacamole is proxied by nginx, but the user login does not happen anywhere. Instead, it's the Manager API that obtains the short-lived access token based on some very strong password that is never exposed. 
 
-
+#### Steps to provision a new VM with RDP remote connection
+1. From Cockpit, create a volume under a particular storage pool.
+2. Still from Cockpit, create a VM using an ISO, then give it lots of RAM (can lower it later, faster install this way)
+3. Using the VNC connection that exists, configure the VM by installing OpenSSH server and allowing ports 22/tcp and 3389/tcp in the firewall. Also install ``qemu-guest-agent`` and ``acpid`` if available. 
+4. Install ``xrdp`` package. Might need to also run ``sudo adduser xrdp ssl-cert``
+5. Test ssh connection
+6. Run this bash command if on Ubuntu to copy over the session customization of default Ubuntu Gnome, otherwise you will get a very basic session. Similar commands might be needed for other desktop envs.
+```bash
+cat <<EOF > ~/.xsessionrc
+export GNOME_SHELL_SESSION_MODE=ubuntu
+export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
+EOF
+```
+7. Shut down the VM, and run ``sudo virsh edit <vm_name>`` and delete the VNC ``<graphics>`` tag. Save and start the VM.
+8. Connect to the VM via ssh and run ``sudo systemctl enable --now xrdp``
+9. Run ``ip a`` and take note of the IP address.
+10. Reboot.
+11. In Guacamole, create a connection using the IP address and port 3389, enter credentials, then tick ``Disable Certificate``.
+12. Test the connection, taking note of the guac ID in the URL. Create an entry in the Manager DB with that guac ID.
+13. Check if it appears on the Dashboard and test. Done.
 ### Remote-Access Stack
 A core philosophy I have for this server is that it's very important to minimize all attack surfaces that appear from allowing remote connections. But I do acknowledge that *some* ways to remotely connect to the server are needed. So here is what I do security-wise:
 
