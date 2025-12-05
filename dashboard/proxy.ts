@@ -6,7 +6,7 @@ const API_BASE = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 const protectedRoutes = ["/", "/virtual-machines/", "/minecraft/", "/services/"]
 const publicRoutes = ["/auth/"]
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
     const path = req.nextUrl.pathname;
     const isProtected = protectedRoutes.includes(path);
 
