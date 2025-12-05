@@ -27,6 +27,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.home.vlad.servermanager.security.filter.HomeAssistantApiKeyFilter;
 import com.home.vlad.servermanager.security.filter.JWTFilter;
+import com.home.vlad.servermanager.security.filter.PrometheusApiKeyFilter;
 import com.home.vlad.servermanager.service.user.MyUserDetailsService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,9 @@ public class SecurityConfig {
 
     @Autowired
     private HomeAssistantApiKeyFilter haApiKeyFilter;
+
+    @Autowired
+    private PrometheusApiKeyFilter prometheusApiKeyFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -88,17 +92,22 @@ public class SecurityConfig {
                 .httpBasic(c -> c.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Actuator endpoints
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/prometheus").access(AuthorizationManagers.allOf(
+                                AuthorityAuthorizationManager.hasAuthority("PROMETHEUS")))
 
-                        // LAN-only access
+                        // AI management endpoints - LAN only
                         .requestMatchers("/manage/api/v1/llm/**", "/manage/api/v1/voice/**")
                         .access(AuthorizationManagers.allOf(
                                 lanOnlyAuthorizationManager(),
                                 AuthorityAuthorizationManager.hasAnyAuthority("HOMEASSISTANT", "ADMIN")))
-                
+
                         // Public authenticated access for other endpoints
                         .requestMatchers("/manage/api/v1/login").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(haApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(prometheusApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

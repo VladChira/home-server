@@ -9,6 +9,13 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
+  - job_name: manager-api-logs
+    static_configs:
+      - targets: ['localhost']
+        labels:
+          job: manager-api
+          __path__: /var/log/manager-api/*.log
+
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock

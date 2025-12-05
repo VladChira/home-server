@@ -9,3 +9,11 @@ scrape_configs:
   - job_name: "cadvisor"
     static_configs:
       - targets: ["cadvisor:8080"]
+
+  - job_name: "manager-api"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ['192.168.0.169:8088']
+    authorization:
+      type: "Manager-Key"
+      credentials: "<key>"

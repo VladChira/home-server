@@ -95,7 +95,7 @@ I've switched to RDP protocol instead of VNC, and ditching noVNC for Apache Guac
 3. Using the VNC connection that exists, configure the VM by installing OpenSSH server and allowing ports 22/tcp and 3389/tcp in the firewall. Also install ``qemu-guest-agent`` and ``acpid`` if available. 
 4. Install ``xrdp`` package. Might need to also run ``sudo adduser xrdp ssl-cert``
 5. Test ssh connection
-6. Run this bash command if on Ubuntu to copy over the session customization of default Ubuntu Gnome, otherwise you will get a very basic session. Similar commands might be needed for other desktop envs.
+6. Run this bash command if on Ubuntu to copy over the session customization of default Ubuntu Gnome, otherwise you will get a very basic session. Similar commands might be needed for other desktop envs. KDE Plasma's defaults on EndeavourOS seem fine. 
 ```bash
 cat <<EOF > ~/.xsessionrc
 export GNOME_SHELL_SESSION_MODE=ubuntu

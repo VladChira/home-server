@@ -55,6 +55,10 @@ services:
     restart: unless-stopped
     networks:
       - home-server
+    command:
+      - "--housekeeping_interval=30s"
+      - "--docker_only=true"
+      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,hugetlb,referenced_memory,cpu_topology,resctrl"
 
   loki:
     image: grafana/loki:latest
@@ -76,6 +80,7 @@ services:
       - /var/log:/var/log
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
       - ./GeoLite2-City.mmdb:/etc/promtail/GeoLite2-City.mmdb:ro
+      - /var/log/manager-api:/var/log/manager-api:ro
     command: -config.file=/etc/promtail/promtail-config.yml
     restart: unless-stopped
     networks:

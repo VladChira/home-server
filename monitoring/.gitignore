@@ -1,3 +1,4 @@
 .env
 gotify_data
 GeoLite2-City.mmdb
+prometheus.yml
