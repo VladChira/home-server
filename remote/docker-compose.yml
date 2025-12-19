@@ -31,13 +31,11 @@ services:
         ports:
             - 443:443
         volumes:
-            - ${NGINX_CONFIG_PATH}:/etc/nginx/conf.d
+            - ${NGINX_CONFIG_PATH}:/etc/nginx
             - /etc/letsencrypt:/etc/letsencrypt
-            - ${NGINX_SCRIPT_PATH}/entrypoint:/entrypoint
             - /var/log/nginx:/var/log/nginx
         environment:
             - TZ=${TZ}
-        entrypoint: ["/bin/sh", "/entrypoint/wait-for-services.sh"]
         networks:
             - home-server
 

@@ -25,6 +25,36 @@ scrape_configs:
         regex: '/(.*)'
         target_label: 'container'
 
+  - job_name: nginx
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          __path__: /var/log/nginx/access_json.log
+
+    pipeline_stages:
+      - json:
+          expressions:
+            time_local: time_local
+            remote_addr: remote_addr
+            request_method: request_method
+            request_uri: request_uri
+            status: status
+            host: host
+      - labels:
+          job:
+          status:
+          request_method:
+          host:
+
+  - job_name: nginx_error
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: nginx_error
+          __path__: /var/log/nginx/ssl_reject_error.log
+
   - job_name: fail2ban
     static_configs:
       - targets: [localhost]

@@ -1,0 +1,84 @@
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+
+    ssl_reject_handshake on;
+}
+
+server {
+    listen 443 ssl;
+    server_name redacted;
+    client_max_body_size 50M;
+
+    ssl_certificate /etc/letsencrypt/live/redacted/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/redacted/privkey.pem;
+
+    location /jellyfin {
+        proxy_pass http://192.168.0.169:8096;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_http_version 1.1;
+
+        proxy_buffering off;
+        proxy_request_buffering off;
+
+        gzip off;
+    }
+
+    location /redacted/ {
+        proxy_pass http://192.168.0.169:3222;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
+    location /redacted/api/v1/ {
+        proxy_pass http://192.168.0.169:8088;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
+    location /gotify/ {
+        proxy_pass         http://192.168.0.169:8923;
+        rewrite ^/gotify(/.*) $1 break;
+        proxy_http_version 1.1;
+
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection "Upgrade";
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto http;
+        proxy_redirect     http:// $scheme://;
+        proxy_set_header   Host $http_host;
+
+        proxy_connect_timeout   1m;
+        proxy_send_timeout      1m;
+        proxy_read_timeout      1m;
+    }
+
+    location /guacamole/ {
+        proxy_pass http://192.168.0.169:7767/guacamole/;
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
